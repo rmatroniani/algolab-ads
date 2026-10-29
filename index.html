@@ -1,0 +1,2471 @@
+<!DOCTYPE html>
+<html lang="pt-BR" class="dark">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>AlgoLab ADS - Laboratório Interativo (VisuAlg, C e Python)</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <script>
+        tailwind.config = {
+            darkMode: 'class',
+            theme: {
+                extend: {
+                    fontFamily: {
+                        sans: ['Inter', 'sans-serif'],
+                        mono: ['JetBrains Mono', 'monospace'],
+                    }
+                }
+            }
+        }
+    </script>
+    <style>
+        * { box-sizing: border-box; }
+        ::-webkit-scrollbar { width: 7px; height: 7px; }
+        ::-webkit-scrollbar-track { background: rgba(15, 23, 42, 0.25); }
+        ::-webkit-scrollbar-thumb { background: rgba(99, 102, 241, 0.45); border-radius: 9999px; }
+        ::-webkit-scrollbar-thumb:hover { background: rgba(99, 102, 241, 0.75); }
+
+        .code-line {
+            transition: background-color 0.15s ease, border-color 0.15s ease;
+            border-left: 4px solid transparent;
+        }
+        .code-line-active {
+            background-color: rgba(245, 158, 11, 0.24) !important;
+            border-left: 4px solid #f59e0b !important;
+            font-weight: 700;
+        }
+        .dark .code-line-active {
+            background-color: rgba(245, 158, 11, 0.22) !important;
+            border-left: 4px solid #fbbf24 !important;
+            color: #fef3c7 !important;
+        }
+        .cell-anim {
+            transition: all 0.22s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+        .kbd-key {
+            transition: all 0.12s ease;
+        }
+        .kbd-pressed {
+            transform: scale(1.14);
+            background-color: #4f46e5 !important;
+            color: #ffffff !important;
+            border-color: #818cf8 !important;
+            box-shadow: 0 0 14px rgba(99, 102, 241, 0.7);
+        }
+    </style>
+</head>
+<body class="bg-slate-100 dark:bg-slate-950 text-slate-900 dark:text-slate-100 font-sans min-h-screen flex flex-col selection:bg-indigo-600 selection:text-white">
+
+    <!-- BARRA DE TOPO: CONTROLE INTEGRADO PASSO 1, 2 e 3 -->
+    <header class="sticky top-0 z-30 bg-white/95 dark:bg-slate-900/95 backdrop-blur border-b border-slate-200 dark:border-slate-800 shadow-sm">
+        <div class="max-w-[1800px] mx-auto px-3 py-2.5 flex flex-col gap-2.5">
+            
+            <!-- Linha 1: Marca + Seletores Principais (1. Atividade, 2. Linguagem, Controles de Passo) -->
+            <div class="flex flex-wrap items-center justify-between gap-3">
+                
+                <!-- Brand -->
+                <div class="flex items-center gap-2.5">
+                    <div class="w-9 h-9 rounded-xl bg-gradient-to-br from-indigo-600 to-violet-600 flex items-center justify-center text-white font-mono font-bold text-base shadow-md shadow-indigo-500/20 shrink-0">
+                        {;}
+                    </div>
+                    <div>
+                        <div class="flex items-center gap-2">
+                            <h1 class="font-extrabold text-base tracking-tight text-slate-900 dark:text-white">AlgoLab <span class="text-indigo-600 dark:text-indigo-400">ADS</span></h1>
+                            <span class="text-[10px] font-bold uppercase tracking-wider px-2 py-0.5 rounded-full bg-indigo-500/10 text-indigo-600 dark:text-indigo-300 border border-indigo-500/20">1º Ano ADS</span>
+                        </div>
+                        <p class="text-[11px] text-slate-500 dark:text-slate-400 hidden sm:block">Código e Visualização de Vetores, Matrizes, Decisão e Repetição Lado a Lado</p>
+                    </div>
+                </div>
+
+                <!-- PASSO 1: SELECIONAR ATIVIDADE -->
+                <div class="flex items-center gap-2 bg-slate-100 dark:bg-slate-800/90 px-3 py-1.5 rounded-xl border border-slate-200 dark:border-slate-700">
+                    <span class="w-5 h-5 rounded-full bg-indigo-600 text-white text-[11px] font-bold flex items-center justify-center shrink-0">1</span>
+                    <label for="activitySelect" class="text-xs font-bold text-slate-700 dark:text-slate-200 whitespace-nowrap">Atividade:</label>
+                    <select id="activitySelect" onchange="onSelectActivity(this.value)" class="bg-white dark:bg-slate-900 text-slate-900 dark:text-white text-xs font-semibold px-2.5 py-1.5 rounded-lg border border-slate-300 dark:border-slate-600 focus:outline-none focus:ring-2 focus:ring-indigo-500 cursor-pointer">
+                        <optgroup label="1. Vetores (1D) - Busca e Clássicos">
+                            <option value="vet_sequencial">Vetor: Busca Sequencial (Linear)</option>
+                            <option value="vet_binaria">Vetor: Busca Binária (Ordenado)</option>
+                            <option value="vet_maior_menor">Vetor: Maior, Menor e Soma</option>
+                        </optgroup>
+                        <optgroup label="2. Vetores (1D) - Algoritmos de Ordenação">
+                            <option value="ord_bubble" selected>Vetor: Bubble Sort (Ordenação da Bolha)</option>
+                            <option value="ord_selection">Vetor: Selection Sort (Seleção)</option>
+                            <option value="ord_insertion">Vetor: Insertion Sort (Inserção)</option>
+                        </optgroup>
+                        <optgroup label="3. Matrizes Bidimensionais (2D)">
+                            <option value="mat_travessia">Matriz M×N: Travessia e Soma Total</option>
+                            <option value="mat_diagonais">Matriz Quadrada: Diagonal Principal e Secundária</option>
+                        </optgroup>
+                        <optgroup label="4. Estruturas de Decisão (Condicionais)">
+                            <option value="dec_par_impar">Decisão: Par/Ímpar e Positivo/Negativo (SE / IF)</option>
+                            <option value="dec_media">Decisão: Média Escolar Encadeada (SENAO SE / ELIF)</option>
+                            <option value="dec_calculadora">Decisão: Calculadora Menu (ESCOLHA / SWITCH)</option>
+                        </optgroup>
+                        <optgroup label="5. Estruturas de Repetição (Laços)">
+                            <option value="rep_tabuada">Repetição: Tabuada Interativa (PARA / FOR)</option>
+                            <option value="rep_fatorial">Repetição: Cálculo de Fatorial (ENQUANTO / WHILE)</option>
+                            <option value="rep_fibonacci">Repetição: Série de Fibonacci (PARA / FOR)</option>
+                        </optgroup>
+                    </select>
+                </div>
+
+                <!-- PASSO 2: SELECIONAR LINGUAGEM -->
+                <div class="flex items-center gap-1.5 bg-slate-100 dark:bg-slate-800/90 px-2.5 py-1.5 rounded-xl border border-slate-200 dark:border-slate-700">
+                    <span class="w-5 h-5 rounded-full bg-indigo-600 text-white text-[11px] font-bold flex items-center justify-center shrink-0">2</span>
+                    <span class="text-xs font-bold text-slate-700 dark:text-slate-200 mr-1 hidden xl:inline">Linguagem:</span>
+                    <button type="button" onclick="setLanguage('visualg')" id="lang-btn-visualg" class="px-2.5 py-1 rounded-lg text-xs font-bold transition">VisuAlg</button>
+                    <button type="button" onclick="setLanguage('c')" id="lang-btn-c" class="px-2.5 py-1 rounded-lg text-xs font-bold transition">C</button>
+                    <button type="button" onclick="setLanguage('python')" id="lang-btn-python" class="px-2.5 py-1 rounded-lg text-xs font-bold transition">Python</button>
+                    <button type="button" onclick="setLanguage('all')" id="lang-btn-all" class="px-2.5 py-1 rounded-lg text-xs font-bold transition">3 Lado a Lado</button>
+                </div>
+
+                <!-- Tema Claro / Escuro -->
+                <div class="flex items-center gap-2">
+                    <button type="button" onclick="toggleTheme()" class="p-2 rounded-xl bg-slate-100 dark:bg-slate-800 text-slate-700 dark:text-slate-300 hover:bg-slate-200 dark:hover:bg-slate-700 border border-slate-200 dark:border-slate-700 transition" title="Alternar Tema Claro/Escuro">
+                        <svg class="w-4 h-4 hidden dark:block text-amber-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 3v1m0 16v1m9-9h-1M4 12H3m15.364 6.364l-.707-.707M6.343 6.343l-.707-.707m12.728 0l-.707.707M6.343 17.657l-.707.707M16 12a4 4 0 11-8 0 4 4 0 018 0z"></path></svg>
+                        <svg class="w-4 h-4 block dark:hidden text-slate-700" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M20.354 15.354A9 9 0 018.646 3.646 9.003 9.003 0 0012 21a9.003 9.003 0 008.354-5.646z"></path></svg>
+                    </button>
+                </div>
+            </div>
+
+            <!-- Linha 2: PASSO 3 (Entrada de Dados Dinâmica) + Navegação Passo a Passo (Enter / Setas) -->
+            <div class="flex flex-wrap items-center justify-between gap-2 pt-2 border-t border-slate-200/80 dark:border-slate-800">
+                
+                <!-- Entrada Dinâmica de Parâmetros (Vetor, Matriz, Decisão ou Repetição) -->
+                <div id="dynamicParamsToolbar" class="flex flex-wrap items-center gap-2 text-xs">
+                    <!-- Preenchido via JS conforme a atividade -->
+                </div>
+
+                <!-- Controles de Execução Passo a Passo e Indicadores de Teclado -->
+                <div class="flex flex-wrap items-center gap-2 ml-auto">
+                    <div class="flex items-center gap-1 bg-slate-100 dark:bg-slate-800 px-2.5 py-1 rounded-xl border border-slate-200 dark:border-slate-700">
+                        <span class="text-[11px] text-slate-500 dark:text-slate-400 mr-1 hidden sm:inline">Teclado:</span>
+                        <span id="keyIndicatorUp" class="kbd-key px-1.5 py-0.5 rounded bg-white dark:bg-slate-900 border border-slate-300 dark:border-slate-600 font-mono text-[11px] font-bold text-slate-700 dark:text-slate-300 shadow-sm">↑ Ant</span>
+                        <span id="keyIndicatorDown" class="kbd-key px-1.5 py-0.5 rounded bg-white dark:bg-slate-900 border border-slate-300 dark:border-slate-600 font-mono text-[11px] font-bold text-indigo-600 dark:text-indigo-400 shadow-sm">↓ / Enter Próx</span>
+                    </div>
+
+                    <div class="flex items-center gap-1.5">
+                        <button type="button" onclick="firstStep()" class="px-2.5 py-1.5 rounded-xl bg-slate-200/80 dark:bg-slate-800 hover:bg-slate-300 dark:hover:bg-slate-700 text-xs font-semibold transition" title="Voltar ao Início (Home)">
+                            ⏮ Início
+                        </button>
+                        <button type="button" onclick="prevStep()" id="btnPrevStep" class="px-3 py-1.5 rounded-xl bg-slate-200/80 dark:bg-slate-800 hover:bg-slate-300 dark:hover:bg-slate-700 disabled:opacity-40 text-xs font-bold transition flex items-center gap-1" title="Passo Anterior (Seta para Cima ↑)">
+                            <span>⬅ Ant (↑)</span>
+                        </button>
+                        <button type="button" onclick="nextStep()" id="btnNextStep" class="px-3.5 py-1.5 rounded-xl bg-indigo-600 hover:bg-indigo-500 text-white disabled:opacity-40 text-xs font-bold shadow-sm shadow-indigo-500/30 transition flex items-center gap-1" title="Próximo Passo (Enter ou Seta para Baixo ↓)">
+                            <span>Próx Passo (Enter / ↓) ➡</span>
+                        </button>
+                        <button type="button" onclick="toggleAutoPlay()" id="btnAutoPlay" class="px-3 py-1.5 rounded-xl bg-emerald-600 hover:bg-emerald-500 text-white text-xs font-bold transition flex items-center gap-1">
+                            <span id="autoPlayLabel">▶ Auto</span>
+                        </button>
+                    </div>
+
+                    <span id="stepBadgeCounter" class="text-xs font-mono font-bold px-2.5 py-1 rounded-lg bg-amber-500/15 text-amber-700 dark:text-amber-300 border border-amber-500/30">
+                        Passo 1 / 1
+                    </span>
+                </div>
+            </div>
+        </div>
+    </header>
+
+    <!-- ÁREA PRINCIPAL: TELA DIVIDIDA LADO A LADO (ESQUERDA: CÓDIGO | DIREITA: DEMONSTRAÇÃO DE VETORES/MATRIZES E TESTE DE MESA) -->
+    <main class="max-w-[1800px] w-full mx-auto flex-1 grid grid-cols-1 lg:grid-cols-12 gap-4 p-3 lg:p-4 items-start">
+
+        <!-- COLUNA ESQUERDA (50% no Desktop = 6 colunas): CÓDIGO SINCRONIZADO -->
+        <section class="lg:col-span-6 bg-white dark:bg-slate-900 rounded-2xl border border-slate-200 dark:border-slate-800 shadow-sm flex flex-col overflow-hidden lg:sticky lg:top-[108px]">
+            <!-- Cabeçalho do Código -->
+            <div class="px-4 py-2.5 bg-slate-50 dark:bg-slate-900/90 border-b border-slate-200 dark:border-slate-800 flex flex-wrap items-center justify-between gap-2">
+                <div class="flex items-center gap-2">
+                    <span class="w-2.5 h-2.5 rounded-full bg-indigo-500"></span>
+                    <h2 id="codePanelTitle" class="text-xs font-bold uppercase tracking-wider text-slate-700 dark:text-slate-200">
+                        Código-Fonte Sincronizado
+                    </h2>
+                </div>
+                <div class="flex items-center gap-2 text-[11px] text-slate-500 dark:text-slate-400 font-mono">
+                    <span class="inline-block w-2.5 h-2.5 rounded-sm bg-amber-400/80 border border-amber-500"></span>
+                    <span>Linha em execução no passo atual</span>
+                </div>
+            </div>
+
+            <!-- Container das Colunas de Código -->
+            <div id="codeColumnsContainer" class="grid grid-cols-1 divide-y lg:divide-y-0 lg:divide-x divide-slate-200 dark:divide-slate-800">
+                
+                <!-- Painel VisuAlg -->
+                <div id="codeBox-visualg" class="flex flex-col">
+                    <div class="px-3.5 py-1.5 bg-amber-500/10 border-b border-amber-500/20 flex items-center justify-between">
+                        <div class="flex items-center gap-2">
+                            <span class="w-2 h-2 rounded-full bg-amber-500"></span>
+                            <span class="text-xs font-bold font-mono text-amber-800 dark:text-amber-300">VisuAlg (Portugol)</span>
+                        </div>
+                        <span class="text-[10px] font-mono px-1.5 py-0.5 rounded bg-amber-500/20 text-amber-900 dark:text-amber-200 font-semibold">Vetor começa em [1]</span>
+                    </div>
+                    <div id="codeLines-visualg" class="p-2.5 font-mono text-xs leading-6 overflow-x-auto max-h-[540px] overflow-y-auto select-text"></div>
+                </div>
+
+                <!-- Painel Linguagem C -->
+                <div id="codeBox-c" class="flex flex-col hidden">
+                    <div class="px-3.5 py-1.5 bg-sky-500/10 border-b border-sky-500/20 flex items-center justify-between">
+                        <div class="flex items-center gap-2">
+                            <span class="w-2 h-2 rounded-full bg-sky-500"></span>
+                            <span class="text-xs font-bold font-mono text-sky-800 dark:text-sky-300">Linguagem C (GCC)</span>
+                        </div>
+                        <span class="text-[10px] font-mono px-1.5 py-0.5 rounded bg-sky-500/20 text-sky-900 dark:text-sky-200 font-semibold">Vetor começa em [0]</span>
+                    </div>
+                    <div id="codeLines-c" class="p-2.5 font-mono text-xs leading-6 overflow-x-auto max-h-[540px] overflow-y-auto select-text"></div>
+                </div>
+
+                <!-- Painel Python -->
+                <div id="codeBox-python" class="flex flex-col hidden">
+                    <div class="px-3.5 py-1.5 bg-emerald-500/10 border-b border-emerald-500/20 flex items-center justify-between">
+                        <div class="flex items-center gap-2">
+                            <span class="w-2 h-2 rounded-full bg-emerald-500"></span>
+                            <span class="text-xs font-bold font-mono text-emerald-800 dark:text-emerald-300">Python 3</span>
+                        </div>
+                        <span class="text-[10px] font-mono px-1.5 py-0.5 rounded bg-emerald-500/20 text-emerald-900 dark:text-emerald-200 font-semibold">Lista começa em [0]</span>
+                    </div>
+                    <div id="codeLines-python" class="p-2.5 font-mono text-xs leading-6 overflow-x-auto max-h-[540px] overflow-y-auto select-text"></div>
+                </div>
+
+            </div>
+
+            <!-- Rodapé Didático da Coluna de Código -->
+            <div class="px-4 py-2.5 bg-slate-50 dark:bg-slate-900/60 border-t border-slate-200 dark:border-slate-800 flex items-center justify-between text-[11px] text-slate-500 dark:text-slate-400">
+                <span id="didacticNoteFooter">Dica: No VisuAlg o índice vai de 1 até N. Em C e Python vai de 0 até N-1.</span>
+                <span id="complexityBadge" class="font-mono font-bold text-indigo-600 dark:text-indigo-400 shrink-0 ml-2">Complexidade: O(n²)</span>
+            </div>
+        </section>
+
+        <!-- COLUNA DIREITA (50% no Desktop = 6 colunas): DEMONSTRAÇÃO VISUAL AO LADO DO CÓDIGO + TESTE DE MESA -->
+        <section class="lg:col-span-6 flex flex-col gap-4">
+
+            <!-- CARD 1: PALCO DE DEMONSTRAÇÃO VISUAL (VETOR 1D, MATRIZ 2D, DECISÃO OU REPETIÇÃO) -->
+            <div class="bg-white dark:bg-slate-900 rounded-2xl border border-slate-200 dark:border-slate-800 shadow-sm p-4 flex flex-col">
+                <div class="flex flex-wrap items-center justify-between gap-2 pb-3 border-b border-slate-100 dark:border-slate-800">
+                    <div>
+                        <div class="flex items-center gap-2">
+                            <span id="visualCategoryTag" class="text-[10px] font-bold uppercase tracking-wider px-2 py-0.5 rounded bg-indigo-500/10 text-indigo-600 dark:text-indigo-400 border border-indigo-500/20">Vetor 1D</span>
+                            <h2 id="visualStageTitle" class="font-bold text-sm sm:text-base text-slate-900 dark:text-white">Demonstração Visual da Estrutura</h2>
+                        </div>
+                    </div>
+                    <!-- Legenda Rápida de Cores -->
+                    <div class="flex flex-wrap items-center gap-2.5 text-[11px]">
+                        <span class="flex items-center gap-1"><span class="w-2.5 h-2.5 rounded-sm bg-amber-400 inline-block"></span> Comparando / Ativo</span>
+                        <span class="flex items-center gap-1"><span class="w-2.5 h-2.5 rounded-sm bg-rose-500 inline-block"></span> Troca / Escrita</span>
+                        <span class="flex items-center gap-1"><span class="w-2.5 h-2.5 rounded-sm bg-emerald-500 inline-block"></span> Ordenado / Encontrado</span>
+                    </div>
+                </div>
+
+                <!-- Explicação Didática do Passo Atual -->
+                <div class="mt-3 bg-indigo-50/80 dark:bg-indigo-950/40 border border-indigo-200 dark:border-indigo-800/70 rounded-xl p-3 flex items-start gap-3">
+                    <div class="w-6 h-6 rounded-lg bg-indigo-600 text-white font-mono font-bold text-xs flex items-center justify-center shrink-0 mt-0.5">
+                        i
+                    </div>
+                    <div class="flex-1">
+                        <div class="flex items-center justify-between">
+                            <span class="text-[11px] font-bold uppercase tracking-wider text-indigo-700 dark:text-indigo-300">O que está acontecendo neste passo:</span>
+                            <span class="text-[10px] font-mono text-indigo-600 dark:text-indigo-400 hidden sm:inline">Pressione Enter ou ↓</span>
+                        </div>
+                        <p id="stepExplanationBox" class="text-xs sm:text-sm font-medium text-slate-800 dark:text-slate-200 mt-0.5 leading-relaxed">
+                            Carregando simulação interativa...
+                        </p>
+                    </div>
+                </div>
+
+                <!-- Área Gráfica Interativa (Vetor, Matriz, Fluxograma ou Laço) -->
+                <div id="visualStageCanvas" class="my-4 min-h-[250px] flex flex-col items-center justify-center p-3 rounded-xl bg-slate-50/70 dark:bg-slate-950/60 border border-slate-200/70 dark:border-slate-800/80 overflow-x-auto">
+                    <!-- Renderizado pelo JS -->
+                </div>
+            </div>
+
+            <!-- CARD 2: TESTE DE MESA (VARIÁVEIS NA MEMÓRIA RAM) + CONSOLE DE SAÍDA -->
+            <div class="grid grid-cols-1 md:grid-cols-12 gap-4">
+                
+                <!-- Teste de Mesa (7 colunas) -->
+                <div class="md:col-span-7 bg-white dark:bg-slate-900 rounded-2xl border border-slate-200 dark:border-slate-800 shadow-sm p-4 flex flex-col">
+                    <div class="flex items-center justify-between pb-2.5 mb-3 border-b border-slate-100 dark:border-slate-800">
+                        <h3 class="text-xs font-bold uppercase tracking-wider text-slate-500 dark:text-slate-400 flex items-center gap-1.5">
+                            <span class="w-2 h-2 rounded-full bg-emerald-500"></span>
+                            Teste de Mesa (Variáveis na Memória)
+                        </h3>
+                        <span class="text-[10px] font-mono px-2 py-0.5 rounded bg-emerald-500/10 text-emerald-600 dark:text-emerald-400 font-semibold">RAM Atual</span>
+                    </div>
+                    <div id="memoryVariablesGrid" class="grid grid-cols-2 sm:grid-cols-3 gap-2">
+                        <!-- Variáveis em tempo real -->
+                    </div>
+                </div>
+
+                <!-- Saída do Terminal / Console (5 colunas) -->
+                <div class="md:col-span-5 bg-slate-900 rounded-2xl border border-slate-800 shadow-sm p-4 flex flex-col text-slate-100">
+                    <div class="flex items-center justify-between pb-2 mb-2.5 border-b border-slate-800">
+                        <div class="flex items-center gap-1.5">
+                            <span class="w-2.5 h-2.5 rounded-full bg-rose-500"></span>
+                            <span class="w-2.5 h-2.5 rounded-full bg-amber-400"></span>
+                            <span class="w-2.5 h-2.5 rounded-full bg-emerald-500"></span>
+                            <span class="text-[11px] font-mono font-bold text-slate-400 ml-1">Terminal / Saída</span>
+                        </div>
+                        <span class="text-[10px] font-mono text-slate-500">escreval / printf / print</span>
+                    </div>
+                    <div id="consoleOutputBox" class="font-mono text-xs space-y-1 text-emerald-400 overflow-y-auto max-h-[150px] flex-1">
+                        <!-- Saída acumulada -->
+                    </div>
+                </div>
+
+            </div>
+
+        </section>
+
+    </main>
+
+    <script>
+        /***********************************************************************
+         * ALGOLAB ADS - MOTOR DE EXECUÇÃO PASSO A PASSO E VISUALIZAÇÃO
+         ***********************************************************************/
+
+        const appState = {
+            activity: 'ord_bubble',
+            language: 'visualg', // 'visualg' | 'c' | 'python' | 'all'
+            
+            // Parâmetros editáveis pelo aluno
+            vectorSize: 6,
+            vector: [45, 18, 32, 12, 50, 24],
+            searchTarget: 32,
+
+            matrixRows: 3,
+            matrixCols: 3,
+            matrix: [
+                [10, 25, 14],
+                [32, 18, 40],
+                [15, 22, 30]
+            ],
+
+            // Parâmetros Decisão e Repetição
+            decNum: -18,
+            decNota1: 7.5,
+            decNota2: 5.5,
+            decCalcA: 24,
+            decCalcB: 6,
+            decCalcOp: 1, // 1:+, 2:-, 3:*, 4:/
+
+            repTabuadaN: 7,
+            repTabuadaMax: 6,
+            repFatorialN: 5,
+            repFibonacciN: 7,
+
+            // Controle de passos
+            steps: [],
+            stepIndex: 0,
+            codes: { visualg: [], c: [], python: [] },
+            autoPlayTimer: null
+        };
+
+        const ACTIVITY_META = {
+            vet_sequencial: { title: 'Busca Sequencial em Vetor', tag: 'Vetor 1D • Busca', complexity: 'Tempo: O(n) | Espaço: O(1)', tip: 'Percorre o vetor do início ao fim comparando cada elemento com o valor procurado.' },
+            vet_binaria: { title: 'Busca Binária em Vetor Ordenado', tag: 'Vetor 1D • Busca Rápida', complexity: 'Tempo: O(log n) | Espaço: O(1)', tip: 'Exige vetor ORDENADO! Calcula o meio e descarta metade do vetor a cada passo.' },
+            vet_maior_menor: { title: 'Maior, Menor e Soma do Vetor', tag: 'Vetor 1D • Clássico', complexity: 'Tempo: O(n) | Espaço: O(1)', tip: 'Inicializamos maior e menor com o 1º elemento do vetor (v[1] no VisuAlg, v[0] em C/Python).' },
+            ord_bubble: { title: 'Bubble Sort (Ordenação da Bolha)', tag: 'Vetor 1D • Ordenação', complexity: 'Tempo: O(n²) | Espaço: O(1)', tip: 'Compara elementos vizinhos (v[j] e v[j+1]) e troca-os usando a variável aux se estiverem fora de ordem.' },
+            ord_selection: { title: 'Selection Sort (Ordenação por Seleção)', tag: 'Vetor 1D • Ordenação', complexity: 'Tempo: O(n²) | Espaço: O(1)', tip: 'Busca a posição do menor elemento restante (menor) e faz apenas uma troca ao final de cada varredura.' },
+            ord_insertion: { title: 'Insertion Sort (Ordenação por Inserção)', tag: 'Vetor 1D • Ordenação', complexity: 'Tempo: O(n²) | Espaço: O(1)', tip: 'Insere a "chave" na posição correta deslocando os elementos maiores para a direita.' },
+            mat_travessia: { title: 'Travessia e Soma de Matriz M×N', tag: 'Matriz 2D • Laços Aninhados', complexity: 'Tempo: O(M×N) | Espaço: O(1)', tip: 'O laço externo (i) percorre as Linhas e o laço interno (j) percorre as Colunas da matriz.' },
+            mat_diagonais: { title: 'Diagonal Principal e Secundária', tag: 'Matriz 2D Quadrada', complexity: 'Tempo: O(N²) | Espaço: O(1)', tip: 'Diagonal Principal ocorre quando Linha == Coluna (i == j).' },
+            dec_par_impar: { title: 'Par ou Ímpar e Positivo/Negativo', tag: 'Decisão • SE / SENAO', complexity: 'Tempo: O(1) | Espaço: O(1)', tip: 'O operador % (resto da divisão por 2) indica se um número inteiro é Par (resto 0) ou Ímpar.' },
+            dec_media: { title: 'Aprovação Escolar Encadeada', tag: 'Decisão • SENAO SE / ELIF', complexity: 'Tempo: O(1) | Espaço: O(1)', tip: 'Assim que uma condição verdadeira é encontrada, as demais condições encadeadas são ignoradas.' },
+            dec_calculadora: { title: 'Calculadora Menu (Escolha / Switch)', tag: 'Decisão • Múltipla Escolha', complexity: 'Tempo: O(1) | Espaço: O(1)', tip: 'Desvia diretamente para o caso correspondente à opção escolhida pelo usuário.' },
+            rep_tabuada: { title: 'Tabuada com Laço Contado (PARA / FOR)', tag: 'Repetição • Laço PARA', complexity: 'Tempo: O(N) | Espaço: O(1)', tip: 'Ideal quando sabemos exatamente quantas vezes o bloco deve repetir.' },
+            rep_fatorial: { title: 'Cálculo de Fatorial (ENQUANTO / WHILE)', tag: 'Repetição • Acumulador', complexity: 'Tempo: O(N) | Espaço: O(1)', tip: 'Acumuladores multiplicativos (fat) devem sempre começar em 1 (nunca em 0).' },
+            rep_fibonacci: { title: 'Série de Fibonacci (N Termos)', tag: 'Repetição • Série Clássica', complexity: 'Tempo: O(N) | Espaço: O(1)', tip: 'Cada novo termo da sequência é a soma dos dois termos imediatamente anteriores.' }
+        };
+
+        // Inicialização Imediata ao Carregar a Página
+        document.addEventListener('DOMContentLoaded', () => {
+            setupKeyboardListeners();
+            setLanguage(appState.language);
+            onSelectActivity(appState.activity);
+        });
+
+        function toggleTheme() {
+            document.documentElement.classList.toggle('dark');
+        }
+
+        // Configuração dos Atalhos de Teclado (Enter, Seta para Baixo, Seta para Cima)
+        function setupKeyboardListeners() {
+            window.addEventListener('keydown', (e) => {
+                const activeEl = document.activeElement;
+                const tag = activeEl ? activeEl.tagName.toLowerCase() : '';
+                const isInput = (tag === 'input' || tag === 'textarea');
+
+                if (isInput) {
+                    if (e.key === 'Enter') {
+                        e.preventDefault();
+                        activeEl.blur();
+                    }
+                    return;
+                }
+
+                if (e.key === 'Enter' || e.key === 'ArrowDown') {
+                    e.preventDefault();
+                    stopAutoPlay();
+                    flashKey('keyIndicatorDown');
+                    nextStep();
+                } else if (e.key === 'ArrowUp') {
+                    e.preventDefault();
+                    stopAutoPlay();
+                    flashKey('keyIndicatorUp');
+                    prevStep();
+                } else if (e.key === 'Home') {
+                    e.preventDefault();
+                    stopAutoPlay();
+                    firstStep();
+                }
+            });
+        }
+
+        function flashKey(id) {
+            const el = document.getElementById(id);
+            if (!el) return;
+            el.classList.add('kbd-pressed');
+            setTimeout(() => el.classList.remove('kbd-pressed'), 160);
+        }
+
+        // Alternar Linguagem Exibida à Esquerda
+        function setLanguage(lang) {
+            appState.language = lang;
+            const langs = ['visualg', 'c', 'python', 'all'];
+            langs.forEach(l => {
+                const btn = document.getElementById(`lang-btn-${l}`);
+                if (!btn) return;
+                if (l === lang) {
+                    btn.className = 'px-2.5 py-1 rounded-lg text-xs font-bold transition bg-indigo-600 text-white shadow-sm';
+                } else {
+                    btn.className = 'px-2.5 py-1 rounded-lg text-xs font-bold transition text-slate-600 dark:text-slate-300 hover:bg-slate-200 dark:hover:bg-slate-700';
+                }
+            });
+
+            const container = document.getElementById('codeColumnsContainer');
+            const boxVis = document.getElementById('codeBox-visualg');
+            const boxC = document.getElementById('codeBox-c');
+            const boxPy = document.getElementById('codeBox-python');
+
+            if (lang === 'all') {
+                container.className = 'grid grid-cols-1 xl:grid-cols-3 divide-y xl:divide-y-0 xl:divide-x divide-slate-200 dark:divide-slate-800';
+                boxVis.classList.remove('hidden');
+                boxC.classList.remove('hidden');
+                boxPy.classList.remove('hidden');
+            } else {
+                container.className = 'grid grid-cols-1';
+                boxVis.classList.toggle('hidden', lang !== 'visualg');
+                boxC.classList.toggle('hidden', lang !== 'c');
+                boxPy.classList.toggle('hidden', lang !== 'python');
+            }
+
+            renderCurrentStep();
+        }
+
+        // Selecionar Atividade
+        function onSelectActivity(actId) {
+            stopAutoPlay();
+            appState.activity = actId;
+            document.getElementById('activitySelect').value = actId;
+
+            if (actId === 'vet_binaria') {
+                appState.vector.sort((a, b) => a - b);
+            }
+            if (actId === 'mat_diagonais' && appState.matrixRows !== appState.matrixCols) {
+                appState.matrixCols = appState.matrixRows;
+                regenerateMatrix(appState.matrixRows, appState.matrixCols);
+            }
+
+            const meta = ACTIVITY_META[actId];
+            document.getElementById('visualStageTitle').textContent = meta.title;
+            document.getElementById('visualCategoryTag').textContent = meta.tag;
+            document.getElementById('complexityBadge').textContent = meta.complexity;
+            document.getElementById('didacticNoteFooter').textContent = meta.tip;
+
+            renderDynamicToolbar();
+            rebuildSimulation();
+        }
+
+        // Renderizar Controles de Entrada na Barra Superior (Passo 3)
+        function renderDynamicToolbar() {
+            const bar = document.getElementById('dynamicParamsToolbar');
+            const act = appState.activity;
+
+            // Caso 1: Atividades de Vetor
+            if (act.startsWith('vet_') || act.startsWith('ord_')) {
+                const needsTarget = (act === 'vet_sequencial' || act === 'vet_binaria');
+                bar.innerHTML = `
+                    <div class="flex flex-wrap items-center gap-2">
+                        <span class="w-5 h-5 rounded-full bg-indigo-600 text-white text-[11px] font-bold flex items-center justify-center shrink-0">3</span>
+                        <label class="font-bold text-slate-700 dark:text-slate-300">Tam. Vetor (N):</label>
+                        <select onchange="changeVectorSize(this.value)" class="bg-white dark:bg-slate-900 border border-slate-300 dark:border-slate-700 rounded-lg px-2 py-1 font-mono font-bold">
+                            ${[4,5,6,7,8,9,10].map(n => `<option value="${n}" ${appState.vector.length === n ? 'selected' : ''}>${n} pos</option>`).join('')}
+                        </select>
+
+                        <label class="font-bold text-slate-700 dark:text-slate-300 ml-1">Elementos:</label>
+                        <input id="vecElementsInput" type="text" value="${appState.vector.join(', ')}" onchange="applyCustomVector(this.value)"
+                            class="w-44 sm:w-56 bg-white dark:bg-slate-900 border border-slate-300 dark:border-slate-700 rounded-lg px-2.5 py-1 font-mono text-xs"
+                            title="Digite números separados por vírgula e pressione Enter">
+                        
+                        <button type="button" onclick="randomizeVector()" class="px-2.5 py-1 rounded-lg bg-slate-200 dark:bg-slate-800 hover:bg-indigo-600 hover:text-white font-semibold transition">
+                            🎲 Sortear Vetor
+                        </button>
+
+                        ${needsTarget ? `
+                            <div class="flex items-center gap-1.5 ml-1 pl-2 border-l border-slate-300 dark:border-slate-700">
+                                <label class="font-bold text-amber-600 dark:text-amber-400">Buscar Valor:</label>
+                                <input type="number" value="${appState.searchTarget}" onchange="changeSearchTarget(this.value)"
+                                    class="w-16 bg-amber-500/10 border border-amber-500/40 rounded-lg px-2 py-1 font-mono font-bold text-amber-700 dark:text-amber-300">
+                            </div>
+                        ` : ''}
+                    </div>
+                `;
+                return;
+            }
+
+            // Caso 2: Atividades de Matriz
+            if (act.startsWith('mat_')) {
+                const isSquare = (act === 'mat_diagonais');
+                bar.innerHTML = `
+                    <div class="flex flex-wrap items-center gap-2">
+                        <span class="w-5 h-5 rounded-full bg-indigo-600 text-white text-[11px] font-bold flex items-center justify-center shrink-0">3</span>
+                        <label class="font-bold text-slate-700 dark:text-slate-300">Linhas (M):</label>
+                        <select onchange="changeMatrixDim(this.value, null)" class="bg-white dark:bg-slate-900 border border-slate-300 dark:border-slate-700 rounded-lg px-2 py-1 font-mono font-bold">
+                            ${[2,3,4].map(r => `<option value="${r}" ${appState.matrixRows === r ? 'selected' : ''}>${r} linhas</option>`).join('')}
+                        </select>
+
+                        <label class="font-bold text-slate-700 dark:text-slate-300">Colunas (N):</label>
+                        <select ${isSquare ? 'disabled' : ''} onchange="changeMatrixDim(null, this.value)" class="bg-white dark:bg-slate-900 border border-slate-300 dark:border-slate-700 rounded-lg px-2 py-1 font-mono font-bold disabled:opacity-50">
+                            ${[2,3,4].map(c => `<option value="${c}" ${appState.matrixCols === c ? 'selected' : ''}>${c} colunas</option>`).join('')}
+                        </select>
+
+                        <button type="button" onclick="randomizeMatrix()" class="px-2.5 py-1 rounded-lg bg-slate-200 dark:bg-slate-800 hover:bg-indigo-600 hover:text-white font-semibold transition">
+                            🎲 Sortear Matriz ${appState.matrixRows}×${appState.matrixCols}
+                        </button>
+                    </div>
+                `;
+                return;
+            }
+
+            // Caso 3: Estruturas de Decisão
+            if (act === 'dec_par_impar') {
+                bar.innerHTML = `
+                    <div class="flex items-center gap-2">
+                        <span class="w-5 h-5 rounded-full bg-indigo-600 text-white text-[11px] font-bold flex items-center justify-center shrink-0">3</span>
+                        <label class="font-bold text-slate-700 dark:text-slate-300">Número Inteiro (num):</label>
+                        <input type="number" value="${appState.decNum}" onchange="appState.decNum = parseInt(this.value)||0; rebuildSimulation();"
+                            class="w-20 bg-white dark:bg-slate-900 border border-slate-300 dark:border-slate-700 rounded-lg px-2.5 py-1 font-mono font-bold">
+                        <button type="button" onclick="appState.decNum = Math.floor(Math.random()*80)-40; renderDynamicToolbar(); rebuildSimulation();" class="px-2.5 py-1 rounded-lg bg-slate-200 dark:bg-slate-800 font-semibold">🎲 Sortear</button>
+                    </div>
+                `;
+            } else if (act === 'dec_media') {
+                bar.innerHTML = `
+                    <div class="flex items-center gap-2">
+                        <span class="w-5 h-5 rounded-full bg-indigo-600 text-white text-[11px] font-bold flex items-center justify-center shrink-0">3</span>
+                        <label class="font-bold">Nota 1:</label>
+                        <input type="number" step="0.5" min="0" max="10" value="${appState.decNota1}" onchange="appState.decNota1 = parseFloat(this.value)||0; rebuildSimulation();"
+                            class="w-16 bg-white dark:bg-slate-900 border border-slate-300 dark:border-slate-700 rounded-lg px-2 py-1 font-mono font-bold">
+                        <label class="font-bold">Nota 2:</label>
+                        <input type="number" step="0.5" min="0" max="10" value="${appState.decNota2}" onchange="appState.decNota2 = parseFloat(this.value)||0; rebuildSimulation();"
+                            class="w-16 bg-white dark:bg-slate-900 border border-slate-300 dark:border-slate-700 rounded-lg px-2 py-1 font-mono font-bold">
+                    </div>
+                `;
+            } else if (act === 'dec_calculadora') {
+                bar.innerHTML = `
+                    <div class="flex flex-wrap items-center gap-2">
+                        <span class="w-5 h-5 rounded-full bg-indigo-600 text-white text-[11px] font-bold flex items-center justify-center shrink-0">3</span>
+                        <label class="font-bold">A:</label>
+                        <input type="number" value="${appState.decCalcA}" onchange="appState.decCalcA = parseFloat(this.value)||0; rebuildSimulation();" class="w-16 bg-white dark:bg-slate-900 border border-slate-300 dark:border-slate-700 rounded-lg px-2 py-1 font-mono font-bold">
+                        <label class="font-bold">B:</label>
+                        <input type="number" value="${appState.decCalcB}" onchange="appState.decCalcB = parseFloat(this.value)||1; rebuildSimulation();" class="w-16 bg-white dark:bg-slate-900 border border-slate-300 dark:border-slate-700 rounded-lg px-2 py-1 font-mono font-bold">
+                        <label class="font-bold">Opção (op):</label>
+                        <select onchange="appState.decCalcOp = parseInt(this.value); rebuildSimulation();" class="bg-white dark:bg-slate-900 border border-slate-300 dark:border-slate-700 rounded-lg px-2 py-1 font-mono font-bold">
+                            <option value="1" ${appState.decCalcOp===1?'selected':''}>Caso 1: Somar (A+B)</option>
+                            <option value="2" ${appState.decCalcOp===2?'selected':''}>Caso 2: Subtrair (A-B)</option>
+                            <option value="3" ${appState.decCalcOp===3?'selected':''}>Caso 3: Multiplicar (A*B)</option>
+                            <option value="4" ${appState.decCalcOp===4?'selected':''}>Caso 4: Dividir (A/B)</option>
+                            <option value="9" ${appState.decCalcOp===9?'selected':''}>Caso 9: Inválido (OutroCaso)</option>
+                        </select>
+                    </div>
+                `;
+            } else if (act === 'rep_tabuada') {
+                bar.innerHTML = `
+                    <div class="flex items-center gap-2">
+                        <span class="w-5 h-5 rounded-full bg-indigo-600 text-white text-[11px] font-bold flex items-center justify-center shrink-0">3</span>
+                        <label class="font-bold">Tabuada de:</label>
+                        <input type="number" value="${appState.repTabuadaN}" onchange="appState.repTabuadaN = parseInt(this.value)||7; rebuildSimulation();" class="w-16 bg-white dark:bg-slate-900 border border-slate-300 dark:border-slate-700 rounded-lg px-2 py-1 font-mono font-bold">
+                        <label class="font-bold">Limite de Repetições:</label>
+                        <select onchange="appState.repTabuadaMax = parseInt(this.value); rebuildSimulation();" class="bg-white dark:bg-slate-900 border border-slate-300 dark:border-slate-700 rounded-lg px-2 py-1 font-mono font-bold">
+                            ${[4,5,6,8,10].map(m => `<option value="${m}" ${appState.repTabuadaMax===m?'selected':''}>Até ${m}</option>`).join('')}
+                        </select>
+                    </div>
+                `;
+            } else if (act === 'rep_fatorial') {
+                bar.innerHTML = `
+                    <div class="flex items-center gap-2">
+                        <span class="w-5 h-5 rounded-full bg-indigo-600 text-white text-[11px] font-bold flex items-center justify-center shrink-0">3</span>
+                        <label class="font-bold">Calcular Fatorial N! (3 a 8):</label>
+                        <select onchange="appState.repFatorialN = parseInt(this.value); rebuildSimulation();" class="bg-white dark:bg-slate-900 border border-slate-300 dark:border-slate-700 rounded-lg px-2.5 py-1 font-mono font-bold">
+                            ${[3,4,5,6,7,8].map(n => `<option value="${n}" ${appState.repFatorialN===n?'selected':''}>N = ${n} (${n}!)</option>`).join('')}
+                        </select>
+                    </div>
+                `;
+            } else if (act === 'rep_fibonacci') {
+                bar.innerHTML = `
+                    <div class="flex items-center gap-2">
+                        <span class="w-5 h-5 rounded-full bg-indigo-600 text-white text-[11px] font-bold flex items-center justify-center shrink-0">3</span>
+                        <label class="font-bold">Quantidade de Termos (N):</label>
+                        <select onchange="appState.repFibonacciN = parseInt(this.value); rebuildSimulation();" class="bg-white dark:bg-slate-900 border border-slate-300 dark:border-slate-700 rounded-lg px-2.5 py-1 font-mono font-bold">
+                            ${[4,5,6,7,8,9,10].map(n => `<option value="${n}" ${appState.repFibonacciN===n?'selected':''}>${n} termos</option>`).join('')}
+                        </select>
+                    </div>
+                `;
+            }
+        }
+
+        // Funções Auxiliares de Vetor e Matriz
+        function changeVectorSize(newSize) {
+            const n = parseInt(newSize, 10) || 6;
+            appState.vectorSize = n;
+            const arr = [];
+            for (let i = 0; i < n; i++) {
+                arr.push(Math.floor(Math.random() * 85) + 10);
+            }
+            if (appState.activity === 'vet_binaria') arr.sort((a, b) => a - b);
+            appState.vector = arr;
+            appState.searchTarget = arr[Math.floor(arr.length / 2)];
+            renderDynamicToolbar();
+            rebuildSimulation();
+        }
+
+        function randomizeVector() {
+            changeVectorSize(appState.vector.length);
+        }
+
+        function applyCustomVector(raw) {
+            const parts = raw.split(',').map(s => parseInt(s.trim(), 10)).filter(n => !isNaN(n));
+            if (parts.length >= 2 && parts.length <= 12) {
+                if (appState.activity === 'vet_binaria') parts.sort((a, b) => a - b);
+                appState.vector = parts;
+                appState.vectorSize = parts.length;
+                renderDynamicToolbar();
+                rebuildSimulation();
+            }
+        }
+
+        function changeSearchTarget(val) {
+            appState.searchTarget = parseInt(val, 10) || 0;
+            rebuildSimulation();
+        }
+
+        function regenerateMatrix(r, c) {
+            const mat = [];
+            for (let i = 0; i < r; i++) {
+                const row = [];
+                for (let j = 0; j < c; j++) {
+                    row.push(Math.floor(Math.random() * 45) + 5);
+                }
+                mat.push(row);
+            }
+            appState.matrix = mat;
+        }
+
+        function changeMatrixDim(r, c) {
+            if (r !== null) appState.matrixRows = parseInt(r, 10);
+            if (c !== null) appState.matrixCols = parseInt(c, 10);
+            if (appState.activity === 'mat_diagonais') {
+                appState.matrixCols = appState.matrixRows;
+            }
+            regenerateMatrix(appState.matrixRows, appState.matrixCols);
+            renderDynamicToolbar();
+            rebuildSimulation();
+        }
+
+        function randomizeMatrix() {
+            regenerateMatrix(appState.matrixRows, appState.matrixCols);
+            rebuildSimulation();
+        }
+
+        /***********************************************************************
+         * GERAÇÃO DE CÓDIGOS E PASSOS DE SIMULAÇÃO
+         ***********************************************************************/
+        function rebuildSimulation() {
+            stopAutoPlay();
+            appState.codes = buildCodesForActivity(appState.activity);
+            appState.steps = buildStepsForActivity(appState.activity);
+            appState.stepIndex = 0;
+            renderCodePanels();
+            renderCurrentStep();
+        }
+
+        function buildCodesForActivity(act) {
+            const N = appState.vector.length;
+            const vecStr = appState.vector.join(', ');
+            const M = appState.matrixRows;
+            const C = appState.matrixCols;
+            const alvo = appState.searchTarget;
+
+            switch (act) {
+                case 'ord_bubble':
+                    return {
+                        visualg: [
+                            `algoritmo "BubbleSort"`,
+                            `var v: vetor[1..${N}] de inteiro`,
+                            `    i, j, aux: inteiro`,
+                            `inicio`,
+                            `   // Vetor inicial: [${vecStr}]`,
+                            `   para i de 1 ate ${N - 1} faca`,
+                            `      para j de 1 ate ${N} - i faca`,
+                            `         se (v[j] > v[j+1]) entao`,
+                            `            aux <- v[j]`,
+                            `            v[j] <- v[j+1]`,
+                            `            v[j+1] <- aux`,
+                            `         fimse`,
+                            `      fimpara`,
+                            `   fimpara`,
+                            `   escreval("Vetor Ordenado!")`,
+                            `fimalgoritmo`
+                        ],
+                        c: [
+                            `#include <stdio.h>`,
+                            `int main() {`,
+                            `    int v[${N}] = {${vecStr}};`,
+                            `    int i, j, aux;`,
+                            `    for (i = 0; i < ${N - 1}; i++) {`,
+                            `        for (j = 0; j < ${N - 1} - i; j++) {`,
+                            `            if (v[j] > v[j+1]) {`,
+                            `                aux = v[j];`,
+                            `                v[j] = v[j+1];`,
+                            `                v[j+1] = aux;`,
+                            `            }`,
+                            `        }`,
+                            `    }`,
+                            `    printf("Vetor Ordenado!\\n");`,
+                            `    return 0;`,
+                            `}`
+                        ],
+                        python: [
+                            `# Bubble Sort em Python`,
+                            `v = [${vecStr}]`,
+                            `n = ${N}`,
+                            `for i in range(0, n - 1):`,
+                            `    for j in range(0, n - 1 - i):`,
+                            `        if v[j] > v[j + 1]:`,
+                            `            aux = v[j]`,
+                            `            v[j] = v[j + 1]`,
+                            `            v[j + 1] = aux`,
+                            `print("Vetor Ordenado:", v)`
+                        ]
+                    };
+
+                case 'ord_selection':
+                    return {
+                        visualg: [
+                            `algoritmo "SelectionSort"`,
+                            `var v: vetor[1..${N}] de inteiro`,
+                            `    i, j, menor, aux: inteiro`,
+                            `inicio`,
+                            `   para i de 1 ate ${N - 1} faca`,
+                            `      menor <- i`,
+                            `      para j de i + 1 ate ${N} faca`,
+                            `         se (v[j] < v[menor]) entao`,
+                            `            menor <- j`,
+                            `         fimse`,
+                            `      fimpara`,
+                            `      aux <- v[i]`,
+                            `      v[i] <- v[menor]`,
+                            `      v[menor] <- aux`,
+                            `   fimpara`,
+                            `   escreval("Vetor Ordenado!")`,
+                            `fimalgoritmo`
+                        ],
+                        c: [
+                            `#include <stdio.h>`,
+                            `int main() {`,
+                            `    int v[${N}] = {${vecStr}};`,
+                            `    int i, j, menor, aux;`,
+                            `    for (i = 0; i < ${N - 1}; i++) {`,
+                            `        menor = i;`,
+                            `        for (j = i + 1; j < ${N}; j++) {`,
+                            `            if (v[j] < v[menor]) {`,
+                            `                menor = j;`,
+                            `            }`,
+                            `        }`,
+                            `        aux = v[i]; v[i] = v[menor]; v[menor] = aux;`,
+                            `    }`,
+                            `    printf("Vetor Ordenado!\\n");`,
+                            `    return 0;`,
+                            `}`
+                        ],
+                        python: [
+                            `# Selection Sort em Python`,
+                            `v = [${vecStr}]`,
+                            `for i in range(0, ${N - 1}):`,
+                            `    menor = i`,
+                            `    for j in range(i + 1, ${N}):`,
+                            `        if v[j] < v[menor]:`,
+                            `            menor = j`,
+                            `    v[i], v[menor] = v[menor], v[i]`,
+                            `print("Vetor Ordenado:", v)`
+                        ]
+                    };
+
+                case 'ord_insertion':
+                    return {
+                        visualg: [
+                            `algoritmo "InsertionSort"`,
+                            `var v: vetor[1..${N}] de inteiro`,
+                            `    i, j, chave: inteiro`,
+                            `inicio`,
+                            `   para i de 2 ate ${N} faca`,
+                            `      chave <- v[i]`,
+                            `      j <- i - 1`,
+                            `      enquanto (j >= 1) e (v[j] > chave) faca`,
+                            `         v[j + 1] <- v[j]`,
+                            `         j <- j - 1`,
+                            `      fimenquanto`,
+                            `      v[j + 1] <- chave`,
+                            `   fimpara`,
+                            `   escreval("Vetor Ordenado!")`,
+                            `fimalgoritmo`
+                        ],
+                        c: [
+                            `#include <stdio.h>`,
+                            `int main() {`,
+                            `    int v[${N}] = {${vecStr}};`,
+                            `    int i, j, chave;`,
+                            `    for (i = 1; i < ${N}; i++) {`,
+                            `        chave = v[i];`,
+                            `        j = i - 1;`,
+                            `        while (j >= 0 && v[j] > chave) {`,
+                            `            v[j + 1] = v[j];`,
+                            `            j = j - 1;`,
+                            `        }`,
+                            `        v[j + 1] = chave;`,
+                            `    }`,
+                            `    return 0;`,
+                            `}`
+                        ],
+                        python: [
+                            `# Insertion Sort em Python`,
+                            `v = [${vecStr}]`,
+                            `for i in range(1, ${N}):`,
+                            `    chave = v[i]`,
+                            `    j = i - 1`,
+                            `    while j >= 0 and v[j] > chave:`,
+                            `        v[j + 1] = v[j]`,
+                            `        j -= 1`,
+                            `    v[j + 1] = chave`,
+                            `print("Ordenado:", v)`
+                        ]
+                    };
+
+                case 'vet_sequencial':
+                    return {
+                        visualg: [
+                            `algoritmo "BuscaSequencial"`,
+                            `var v: vetor[1..${N}] de inteiro`,
+                            `    i, alvo, pos: inteiro`,
+                            `inicio`,
+                            `   alvo <- ${alvo} | pos <- -1`,
+                            `   para i de 1 ate ${N} faca`,
+                            `      se (v[i] = alvo) entao`,
+                            `         pos <- i`,
+                            `         interrompa`,
+                            `      fimse`,
+                            `   fimpara`,
+                            `   escreval("Resultado pos = ", pos)`,
+                            `fimalgoritmo`
+                        ],
+                        c: [
+                            `#include <stdio.h>`,
+                            `int main() {`,
+                            `    int v[${N}] = {${vecStr}};`,
+                            `    int i, alvo = ${alvo}, pos = -1;`,
+                            `    for (i = 0; i < ${N}; i++) {`,
+                            `        if (v[i] == alvo) {`,
+                            `            pos = i;`,
+                            `            break;`,
+                            `        }`,
+                            `    }`,
+                            `    printf("Resultado pos = %d\\n", pos);`,
+                            `    return 0;`,
+                            `}`
+                        ],
+                        python: [
+                            `# Busca Sequencial em Python`,
+                            `v = [${vecStr}]`,
+                            `alvo = ${alvo}`,
+                            `pos = -1`,
+                            `for i in range(0, ${N}):`,
+                            `    if v[i] == alvo:`,
+                            `        pos = i`,
+                            `        break`,
+                            `print("Resultado pos =", pos)`
+                        ]
+                    };
+
+                case 'vet_binaria':
+                    return {
+                        visualg: [
+                            `algoritmo "BuscaBinaria"`,
+                            `var v: vetor[1..${N}] de inteiro`,
+                            `    ini, fim, meio, alvo, pos: inteiro`,
+                            `inicio`,
+                            `   ini <- 1 | fim <- ${N} | alvo <- ${alvo} | pos <- -1`,
+                            `   enquanto (ini <= fim) faca`,
+                            `      meio <- (ini + fim) \\ 2`,
+                            `      se (v[meio] = alvo) entao`,
+                            `         pos <- meio`,
+                            `         interrompa`,
+                            `      senao`,
+                            `         se (v[meio] < alvo) entao`,
+                            `            ini <- meio + 1`,
+                            `         senao`,
+                            `            fim <- meio - 1`,
+                            `         fimse`,
+                            `      fimse`,
+                            `   fimenquanto`,
+                            `   escreval("Posicao: ", pos)`,
+                            `fimalgoritmo`
+                        ],
+                        c: [
+                            `#include <stdio.h>`,
+                            `int main() {`,
+                            `    int v[${N}] = {${vecStr}};`,
+                            `    int ini = 0, fim = ${N - 1}, meio, alvo = ${alvo}, pos = -1;`,
+                            `    while (ini <= fim) {`,
+                            `        meio = (ini + fim) / 2;`,
+                            `        if (v[meio] == alvo) {`,
+                            `            pos = meio; break;`,
+                            `        } else if (v[meio] < alvo) {`,
+                            `            ini = meio + 1;`,
+                            `        } else {`,
+                            `            fim = meio - 1;`,
+                            `        }`,
+                            `    }`,
+                            `    printf("Posicao: %d\\n", pos);`,
+                            `    return 0;`,
+                            `}`
+                        ],
+                        python: [
+                            `# Busca Binária (Vetor Ordenado)`,
+                            `v = [${vecStr}]`,
+                            `ini, fim, alvo, pos = 0, ${N - 1}, ${alvo}, -1`,
+                            `while ini <= fim:`,
+                            `    meio = (ini + fim) // 2`,
+                            `    if v[meio] == alvo:`,
+                            `        pos = meio`,
+                            `        break`,
+                            `    elif v[meio] < alvo:`,
+                            `        ini = meio + 1`,
+                            `    else:`,
+                            `        fim = meio - 1`,
+                            `print("Posição:", pos)`
+                        ]
+                    };
+
+                case 'vet_maior_menor':
+                    return {
+                        visualg: [
+                            `algoritmo "MaiorMenorSoma"`,
+                            `var v: vetor[1..${N}] de inteiro`,
+                            `    i, maior, menor, soma: inteiro`,
+                            `inicio`,
+                            `   maior <- v[1] | menor <- v[1] | soma <- 0`,
+                            `   para i de 1 ate ${N} faca`,
+                            `      soma <- soma + v[i]`,
+                            `      se (v[i] > maior) entao`,
+                            `         maior <- v[i]`,
+                            `      fimse`,
+                            `      se (v[i] < menor) entao`,
+                            `         menor <- v[i]`,
+                            `      fimse`,
+                            `   fimpara`,
+                            `   escreval("Maior=", maior, " Menor=", menor, " Soma=", soma)`,
+                            `fimalgoritmo`
+                        ],
+                        c: [
+                            `#include <stdio.h>`,
+                            `int main() {`,
+                            `    int v[${N}] = {${vecStr}};`,
+                            `    int i, maior = v[0], menor = v[0], soma = 0;`,
+                            `    for (i = 0; i < ${N}; i++) {`,
+                            `        soma += v[i];`,
+                            `        if (v[i] > maior) maior = v[i];`,
+                            `        if (v[i] < menor) menor = v[i];`,
+                            `    }`,
+                            `    printf("Maior=%d Menor=%d Soma=%d\\n", maior, menor, soma);`,
+                            `    return 0;`,
+                            `}`
+                        ],
+                        python: [
+                            `# Maior, Menor e Soma dos Elementos`,
+                            `v = [${vecStr}]`,
+                            `maior, menor, soma = v[0], v[0], 0`,
+                            `for i in range(0, ${N}):`,
+                            `    soma += v[i]`,
+                            `    if v[i] > maior: maior = v[i]`,
+                            `    if v[i] < menor: menor = v[i]`,
+                            `print(f"Maior={maior} Menor={menor} Soma={soma}")`
+                        ]
+                    };
+
+                case 'mat_travessia':
+                    return {
+                        visualg: [
+                            `algoritmo "SomaMatriz"`,
+                            `var m: vetor[1..${M}, 1..${C}] de inteiro`,
+                            `    i, j, soma: inteiro`,
+                            `inicio`,
+                            `   soma <- 0`,
+                            `   para i de 1 ate ${M} faca`,
+                            `      para j de 1 ate ${C} faca`,
+                            `         soma <- soma + m[i, j]`,
+                            `      fimpara`,
+                            `   fimpara`,
+                            `   escreval("Soma Total da Matriz = ", soma)`,
+                            `fimalgoritmo`
+                        ],
+                        c: [
+                            `#include <stdio.h>`,
+                            `int main() {`,
+                            `    int m[${M}][${C}];`,
+                            `    int i, j, soma = 0;`,
+                            `    for (i = 0; i < ${M}; i++) {`,
+                            `        for (j = 0; j < ${C}; j++) {`,
+                            `            soma = soma + m[i][j];`,
+                            `        }`,
+                            `    }`,
+                            `    printf("Soma Total = %d\\n", soma);`,
+                            `    return 0;`,
+                            `}`
+                        ],
+                        python: [
+                            `# Travessia Linha por Linha em Matriz ${M}x${C}`,
+                            `soma = 0`,
+                            `for i in range(0, ${M}):`,
+                            `    for j in range(0, ${C}):`,
+                            `        soma = soma + m[i][j]`,
+                            `print("Soma Total da Matriz =", soma)`
+                        ]
+                    };
+
+                case 'mat_diagonais':
+                    return {
+                        visualg: [
+                            `algoritmo "DiagonaisMatriz"`,
+                            `var m: vetor[1..${M}, 1..${M}] de inteiro`,
+                            `    i, j, somaP, somaS: inteiro`,
+                            `inicio`,
+                            `   somaP <- 0 | somaS <- 0`,
+                            `   para i de 1 ate ${M} faca`,
+                            `      para j de 1 ate ${M} faca`,
+                            `         se (i = j) entao`,
+                            `            somaP <- somaP + m[i, j]`,
+                            `         fimse`,
+                            `         se (i + j = ${M + 1}) entao`,
+                            `            somaS <- somaS + m[i, j]`,
+                            `         fimse`,
+                            `      fimpara`,
+                            `   fimpara`,
+                            `   escreval("Diag Principal=", somaP, " Secundaria=", somaS)`,
+                            `fimalgoritmo`
+                        ],
+                        c: [
+                            `#include <stdio.h>`,
+                            `int main() {`,
+                            `    int m[${M}][${M}], i, j, somaP = 0, somaS = 0;`,
+                            `    for (i = 0; i < ${M}; i++) {`,
+                            `        for (j = 0; j < ${M}; j++) {`,
+                            `            if (i == j) somaP += m[i][j];`,
+                            `            if (i + j == ${M - 1}) somaS += m[i][j];`,
+                            `        }`,
+                            `    }`,
+                            `    printf("DiagP=%d DiagS=%d\\n", somaP, somaS);`,
+                            `    return 0;`,
+                            `}`
+                        ],
+                        python: [
+                            `# Diagonal Principal (i == j) e Secundária (i + j == N - 1)`,
+                            `somaP, somaS = 0, 0`,
+                            `for i in range(0, ${M}):`,
+                            `    for j in range(0, ${M}):`,
+                            `        if i == j: somaP += m[i][j]`,
+                            `        if i + j == ${M - 1}: somaS += m[i][j]`,
+                            `print(f"DiagP={somaP} DiagS={somaS}")`
+                        ]
+                    };
+
+                case 'dec_par_impar':
+                    return {
+                        visualg: [
+                            `algoritmo "ParImparSinal"`,
+                            `var num: inteiro`,
+                            `inicio`,
+                            `   num <- ${appState.decNum}`,
+                            `   se (num % 2 = 0) entao`,
+                            `      escreval("O numero ", num, " eh PAR")`,
+                            `   senao`,
+                            `      escreval("O numero ", num, " eh IMPAR")`,
+                            `   fimse`,
+                            `   se (num >= 0) entao`,
+                            `      escreval("Classificacao: POSITIVO")`,
+                            `   senao`,
+                            `      escreval("Classificacao: NEGATIVO")`,
+                            `   fimse`,
+                            `fimalgoritmo`
+                        ],
+                        c: [
+                            `#include <stdio.h>`,
+                            `int main() {`,
+                            `    int num = ${appState.decNum};`,
+                            `    if (num % 2 == 0) {`,
+                            `        printf("O numero %d eh PAR\\n", num);`,
+                            `    } else {`,
+                            `        printf("O numero %d eh IMPAR\\n", num);`,
+                            `    }`,
+                            `    if (num >= 0) {`,
+                            `        printf("Classificacao: POSITIVO\\n");`,
+                            `    } else {`,
+                            `        printf("Classificacao: NEGATIVO\\n");`,
+                            `    }`,
+                            `    return 0;`,
+                            `}`
+                        ],
+                        python: [
+                            `# Estrutura de Decisão Simples (if / else)`,
+                            `num = ${appState.decNum}`,
+                            `if num % 2 == 0:`,
+                            `    print(f"O número {num} é PAR")`,
+                            `else:`,
+                            `    print(f"O número {num} é ÍMPAR")`,
+                            `if num >= 0:`,
+                            `    print("Classificação: POSITIVO")`,
+                            `else:`,
+                            `    print("Classificação: NEGATIVO")`
+                        ]
+                    };
+
+                case 'dec_media':
+                    return {
+                        visualg: [
+                            `algoritmo "SituacaoEscolar"`,
+                            `var n1, n2, media: real`,
+                            `inicio`,
+                            `   n1 <- ${appState.decNota1} | n2 <- ${appState.decNota2}`,
+                            `   media <- (n1 + n2) / 2`,
+                            `   se (media >= 7.0) entao`,
+                            `      escreval("Situacao: APROVADO")`,
+                            `   senao`,
+                            `      se (media >= 4.0) entao`,
+                            `         escreval("Situacao: EM EXAME")`,
+                            `      senao`,
+                            `         escreval("Situacao: REPROVADO")`,
+                            `      fimse`,
+                            `   fimse`,
+                            `fimalgoritmo`
+                        ],
+                        c: [
+                            `#include <stdio.h>`,
+                            `int main() {`,
+                            `    float n1 = ${appState.decNota1}, n2 = ${appState.decNota2}, media;`,
+                            `    media = (n1 + n2) / 2.0;`,
+                            `    if (media >= 7.0) {`,
+                            `        printf("Situacao: APROVADO\\n");`,
+                            `    } else if (media >= 4.0) {`,
+                            `        printf("Situacao: EM EXAME\\n");`,
+                            `    } else {`,
+                            `        printf("Situacao: REPROVADO\\n");`,
+                            `    }`,
+                            `    return 0;`,
+                            `}`
+                        ],
+                        python: [
+                            `# Decisão Encadeada (if / elif / else)`,
+                            `n1, n2 = ${appState.decNota1}, ${appState.decNota2}`,
+                            `media = (n1 + n2) / 2`,
+                            `if media >= 7.0:`,
+                            `    print("Situação: APROVADO")`,
+                            `elif media >= 4.0:`,
+                            `    print("Situação: EM EXAME")`,
+                            `else:`,
+                            `    print("Situação: REPROVADO")`
+                        ]
+                    };
+
+                case 'dec_calculadora':
+                    return {
+                        visualg: [
+                            `algoritmo "CalculadoraEscolha"`,
+                            `var a, b, res: real | op: inteiro`,
+                            `inicio`,
+                            `   a <- ${appState.decCalcA} | b <- ${appState.decCalcB} | op <- ${appState.decCalcOp}`,
+                            `   escolha (op)`,
+                            `      caso 1`,
+                            `         res <- a + b`,
+                            `      caso 2`,
+                            `         res <- a - b`,
+                            `      caso 3`,
+                            `         res <- a * b`,
+                            `      caso 4`,
+                            `         res <- a / b`,
+                            `      outrocaso`,
+                            `         escreval("Opcao Invalida!")`,
+                            `   fimescolha`,
+                            `   escreval("Resultado = ", res)`,
+                            `fimalgoritmo`
+                        ],
+                        c: [
+                            `#include <stdio.h>`,
+                            `int main() {`,
+                            `    float a = ${appState.decCalcA}, b = ${appState.decCalcB}, res = 0;`,
+                            `    int op = ${appState.decCalcOp};`,
+                            `    switch (op) {`,
+                            `        case 1: res = a + b; break;`,
+                            `        case 2: res = a - b; break;`,
+                            `        case 3: res = a * b; break;`,
+                            `        case 4: res = a / b; break;`,
+                            `        default: printf("Opcao Invalida!\\n");`,
+                            `    }`,
+                            `    printf("Resultado = %.2f\\n", res);`,
+                            `    return 0;`,
+                            `}`
+                        ],
+                        python: [
+                            `# Estrutura match / case em Python`,
+                            `a, b, op = ${appState.decCalcA}, ${appState.decCalcB}, ${appState.decCalcOp}`,
+                            `res = 0`,
+                            `match op:`,
+                            `    case 1: res = a + b`,
+                            `    case 2: res = a - b`,
+                            `    case 3: res = a * b`,
+                            `    case 4: res = a / b`,
+                            `    case _: print("Opção Inválida!")`,
+                            `print("Resultado =", res)`
+                        ]
+                    };
+
+                case 'rep_tabuada':
+                    return {
+                        visualg: [
+                            `algoritmo "TabuadaPara"`,
+                            `var n, i, prod: inteiro`,
+                            `inicio`,
+                            `   n <- ${appState.repTabuadaN}`,
+                            `   para i de 1 ate ${appState.repTabuadaMax} faca`,
+                            `      prod <- n * i`,
+                            `      escreval(n, " x ", i, " = ", prod)`,
+                            `   fimpara`,
+                            `fimalgoritmo`
+                        ],
+                        c: [
+                            `#include <stdio.h>`,
+                            `int main() {`,
+                            `    int n = ${appState.repTabuadaN}, i, prod;`,
+                            `    for (i = 1; i <= ${appState.repTabuadaMax}; i++) {`,
+                            `        prod = n * i;`,
+                            `        printf("%d x %d = %d\\n", n, i, prod);`,
+                            `    }`,
+                            `    return 0;`,
+                            `}`
+                        ],
+                        python: [
+                            `# Tabuada com laço for`,
+                            `n = ${appState.repTabuadaN}`,
+                            `for i in range(1, ${appState.repTabuadaMax + 1}):`,
+                            `    prod = n * i`,
+                            `    print(f"{n} x {i} = {prod}")`
+                        ]
+                    };
+
+                case 'rep_fatorial':
+                    return {
+                        visualg: [
+                            `algoritmo "FatorialEnquanto"`,
+                            `var n, cont, fat: inteiro`,
+                            `inicio`,
+                            `   n <- ${appState.repFatorialN} | cont <- ${appState.repFatorialN} | fat <- 1`,
+                            `   enquanto (cont > 1) faca`,
+                            `      fat <- fat * cont`,
+                            `      cont <- cont - 1`,
+                            `   fimenquanto`,
+                            `   escreval("Fatorial = ", fat)`,
+                            `fimalgoritmo`
+                        ],
+                        c: [
+                            `#include <stdio.h>`,
+                            `int main() {`,
+                            `    int n = ${appState.repFatorialN}, cont = ${appState.repFatorialN}, fat = 1;`,
+                            `    while (cont > 1) {`,
+                            `        fat = fat * cont;`,
+                            `        cont = cont - 1;`,
+                            `    }`,
+                            `    printf("Fatorial = %d\\n", fat);`,
+                            `    return 0;`,
+                            `}`
+                        ],
+                        python: [
+                            `# Cálculo de Fatorial com while`,
+                            `n = ${appState.repFatorialN}`,
+                            `cont, fat = n, 1`,
+                            `while cont > 1:`,
+                            `    fat = fat * cont`,
+                            `    cont -= 1`,
+                            `print("Fatorial =", fat)`
+                        ]
+                    };
+
+                case 'rep_fibonacci':
+                    return {
+                        visualg: [
+                            `algoritmo "Fibonacci"`,
+                            `var i, n, ant, atual, prox: inteiro`,
+                            `inicio`,
+                            `   n <- ${appState.repFibonacciN} | ant <- 0 | atual <- 1`,
+                            `   para i de 1 ate n faca`,
+                            `      escreva(ant, " ")`,
+                            `      prox <- ant + atual`,
+                            `      ant <- atual`,
+                            `      atual <- prox`,
+                            `   fimpara`,
+                            `fimalgoritmo`
+                        ],
+                        c: [
+                            `#include <stdio.h>`,
+                            `int main() {`,
+                            `    int i, n = ${appState.repFibonacciN}, ant = 0, atual = 1, prox;`,
+                            `    for (i = 1; i <= n; i++) {`,
+                            `        printf("%d ", ant);`,
+                            `        prox = ant + atual;`,
+                            `        ant = atual;`,
+                            `        atual = prox;`,
+                            `    }`,
+                            `    return 0;`,
+                            `}`
+                        ],
+                        python: [
+                            `# Sequência de Fibonacci`,
+                            `n = ${appState.repFibonacciN}`,
+                            `ant, atual = 0, 1`,
+                            `for i in range(1, n + 1):`,
+                            `    print(ant, end=" ")`,
+                            `    prox = ant + atual`,
+                            `    ant = atual`,
+                            `    atual = prox`
+                        ]
+                    };
+            }
+        }
+
+        // Construtor de Passos Detalhados para cada Algoritmo
+        function buildStepsForActivity(act) {
+            const steps = [];
+
+            // 1. BUBBLE SORT
+            if (act === 'ord_bubble') {
+                const v = [...appState.vector];
+                const n = v.length;
+                const sorted = [];
+
+                steps.push({
+                    kind: 'vector',
+                    vec: [...v],
+                    comparing: [],
+                    swapping: [],
+                    sorted: [],
+                    pointers: {},
+                    vars: { 'N': n, 'i': '-', 'j': '-', 'aux': '-' },
+                    console: [`Vetor inicial carregado com ${n} posições.`],
+                    lines: { visualg: 5, c: 3, python: 2 },
+                    explanation: `Iniciamos com o vetor original na memória. Pressione Enter ou Seta para Baixo (↓) para iniciar a ordenação.`
+                });
+
+                for (let i = 0; i < n - 1; i++) {
+                    for (let j = 0; j < n - 1 - i; j++) {
+                        steps.push({
+                            kind: 'vector',
+                            vec: [...v],
+                            comparing: [j, j + 1],
+                            swapping: [],
+                            sorted: [...sorted],
+                            pointers: { [j]: 'j', [j + 1]: 'j+1' },
+                            vars: { 'i (C/Py)': i, 'i (Vis)': i + 1, 'j (C/Py)': j, 'v[j]': v[j], 'v[j+1]': v[j + 1] },
+                            console: [`Comparando v[${j}]=${v[j]} com v[${j+1}]=${v[j+1]}`],
+                            lines: { visualg: 8, c: 7, python: 6 },
+                            explanation: `Comparamos elementos vizinhos: ${v[j]} > ${v[j + 1]}? ${v[j] > v[j + 1] ? 'SIM (Verdadeiro)! Vamos trocar.' : 'NÃO (Falso). Mantemos a posição.'}`
+                        });
+
+                        if (v[j] > v[j + 1]) {
+                            const aux = v[j];
+                            v[j] = v[j + 1];
+                            v[j + 1] = aux;
+
+                            steps.push({
+                                kind: 'vector',
+                                vec: [...v],
+                                comparing: [],
+                                swapping: [j, j + 1],
+                                sorted: [...sorted],
+                                pointers: { [j]: 'trocou', [j + 1]: 'trocou' },
+                                vars: { 'i (C/Py)': i, 'j (C/Py)': j, 'aux': aux, 'v[j]': v[j], 'v[j+1]': v[j + 1] },
+                                console: [`Troca realizada: ${v[j]} ↔ ${v[j + 1]} (aux = ${aux})`],
+                                lines: { visualg: 10, c: 9, python: 8 },
+                                explanation: `Trocamos os valores usando a variável auxiliar (aux = ${aux}). O valor maior (${v[j + 1]}) avançou para a direita.`
+                            });
+                        }
+                    }
+                    sorted.push(n - 1 - i);
+                }
+                sorted.push(0);
+
+                steps.push({
+                    kind: 'vector',
+                    vec: [...v],
+                    comparing: [],
+                    swapping: [],
+                    sorted: Array.from({ length: n }, (_, idx) => idx),
+                    pointers: {},
+                    vars: { 'Status': 'Concluído', 'Total N': n },
+                    console: [`Vetor Ordenado: [${v.join(', ')}]`],
+                    lines: { visualg: 15, c: 14, python: 10 },
+                    explanation: `Ordenação Bubble Sort concluída! Todos os elementos estão em ordem crescente.`
+                });
+                return steps;
+            }
+
+            // 2. SELECTION SORT
+            if (act === 'ord_selection') {
+                const v = [...appState.vector];
+                const n = v.length;
+                const sorted = [];
+
+                steps.push({
+                    kind: 'vector',
+                    vec: [...v],
+                    comparing: [],
+                    swapping: [],
+                    sorted: [],
+                    pointers: {},
+                    vars: { 'N': n, 'i': '-', 'j': '-', 'menor': '-' },
+                    console: [`Iniciando Selection Sort...`],
+                    lines: { visualg: 5, c: 5, python: 3 },
+                    explanation: `Vamos procurar o menor valor do vetor a cada passagem e colocá-lo na posição i.`
+                });
+
+                for (let i = 0; i < n - 1; i++) {
+                    let menor = i;
+                    for (let j = i + 1; j < n; j++) {
+                        steps.push({
+                            kind: 'vector',
+                            vec: [...v],
+                            comparing: [menor, j],
+                            swapping: [],
+                            sorted: [...sorted],
+                            pointers: { [i]: 'i', [menor]: 'menor', [j]: 'j' },
+                            vars: { 'i': i, 'j': j, 'menor': menor, 'v[j]': v[j], 'v[menor]': v[menor] },
+                            console: [`Testando se v[${j}] (${v[j]}) < v[${menor}] (${v[menor]})`],
+                            lines: { visualg: 8, c: 8, python: 6 },
+                            explanation: `Verificamos se o elemento na posição j (${v[j]}) é menor que o menor atual (${v[menor]}).`
+                        });
+                        if (v[j] < v[menor]) {
+                            menor = j;
+                        }
+                    }
+
+                    const aux = v[i];
+                    v[i] = v[menor];
+                    v[menor] = aux;
+                    sorted.push(i);
+
+                    steps.push({
+                        kind: 'vector',
+                        vec: [...v],
+                        comparing: [],
+                        swapping: [i, menor],
+                        sorted: [...sorted],
+                        pointers: { [i]: 'fixado' },
+                        vars: { 'i': i, 'menor': menor, 'aux': aux, 'v[i]': v[i] },
+                        console: [`Posição ${i} recebeu o menor valor (${v[i]})`],
+                        lines: { visualg: 13, c: 12, python: 8 },
+                        explanation: `Trocamos v[i] com v[menor]. O elemento ${v[i]} já está em sua posição definitiva!`
+                    });
+                }
+                sorted.push(n - 1);
+
+                steps.push({
+                    kind: 'vector',
+                    vec: [...v],
+                    comparing: [],
+                    swapping: [],
+                    sorted: Array.from({ length: n }, (_, k) => k),
+                    pointers: {},
+                    vars: { 'Status': 'Ordenado' },
+                    console: [`Vetor Ordenado: [${v.join(', ')}]`],
+                    lines: { visualg: 16, c: 14, python: 9 },
+                    explanation: `Selection Sort finalizado com sucesso!`
+                });
+                return steps;
+            }
+
+            // 3. INSERTION SORT
+            if (act === 'ord_insertion') {
+                const v = [...appState.vector];
+                const n = v.length;
+
+                steps.push({
+                    kind: 'vector',
+                    vec: [...v],
+                    comparing: [],
+                    swapping: [],
+                    sorted: [0],
+                    pointers: { 0: 'ordenado' },
+                    vars: { 'N': n, 'i': '-', 'chave': '-' },
+                    console: [`Iniciando Insertion Sort...`],
+                    lines: { visualg: 5, c: 5, python: 3 },
+                    explanation: `Consideramos o primeiro elemento v[0]=${v[0]} já ordenado e inserimos os próximos um a um.`
+                });
+
+                for (let i = 1; i < n; i++) {
+                    const chave = v[i];
+                    let j = i - 1;
+
+                    steps.push({
+                        kind: 'vector',
+                        vec: [...v],
+                        comparing: [i],
+                        swapping: [],
+                        sorted: Array.from({ length: i }, (_, k) => k),
+                        pointers: { [i]: 'chave', [j]: 'j' },
+                        vars: { 'i': i, 'j': j, 'chave': chave },
+                        console: [`Inserindo chave = ${chave} na parte ordenada`],
+                        lines: { visualg: 6, c: 6, python: 4 },
+                        explanation: `Pegamos chave = ${chave} (posição ${i}) para inserir na posição correta à esquerda.`
+                    });
+
+                    while (j >= 0 && v[j] > chave) {
+                        v[j + 1] = v[j];
+                        steps.push({
+                            kind: 'vector',
+                            vec: [...v],
+                            comparing: [j],
+                            swapping: [j + 1],
+                            sorted: [],
+                            pointers: { [j]: 'j', [j + 1]: 'deslocou' },
+                            vars: { 'i': i, 'j': j, 'chave': chave, 'v[j]': v[j] },
+                            console: [`Deslocando ${v[j]} para a direita`],
+                            lines: { visualg: 9, c: 9, python: 7 },
+                            explanation: `Como ${v[j]} > chave (${chave}), deslocamos ${v[j]} uma casa para a direita.`
+                        });
+                        j--;
+                    }
+                    v[j + 1] = chave;
+
+                    steps.push({
+                        kind: 'vector',
+                        vec: [...v],
+                        comparing: [],
+                        swapping: [j + 1],
+                        sorted: Array.from({ length: i + 1 }, (_, k) => k),
+                        pointers: { [j + 1]: 'inserido' },
+                        vars: { 'i': i, 'j+1': j + 1, 'chave': chave },
+                        console: [`Chave ${chave} inserida na posição ${j + 1}`],
+                        lines: { visualg: 12, c: 12, python: 9 },
+                        explanation: `Inserimos a chave ${chave} na posição ${j + 1}.`
+                    });
+                }
+
+                steps.push({
+                    kind: 'vector',
+                    vec: [...v],
+                    comparing: [],
+                    swapping: [],
+                    sorted: Array.from({ length: n }, (_, k) => k),
+                    pointers: {},
+                    vars: { 'Status': 'Ordenado' },
+                    console: [`Ordenado: [${v.join(', ')}]`],
+                    lines: { visualg: 14, c: 14, python: 10 },
+                    explanation: `Insertion Sort finalizado!`
+                });
+                return steps;
+            }
+
+            // 4. BUSCA SEQUENCIAL
+            if (act === 'vet_sequencial') {
+                const v = [...appState.vector];
+                const alvo = appState.searchTarget;
+                let pos = -1;
+
+                steps.push({
+                    kind: 'vector',
+                    vec: [...v],
+                    comparing: [],
+                    swapping: [],
+                    sorted: [],
+                    pointers: {},
+                    vars: { 'alvo': alvo, 'pos': -1, 'i': '-' },
+                    console: [`Procurando valor alvo = ${alvo} no vetor...`],
+                    lines: { visualg: 5, c: 4, python: 3 },
+                    explanation: `Iniciamos com pos = -1 (indicando ainda não encontrado) e alvo = ${alvo}.`
+                });
+
+                for (let i = 0; i < v.length; i++) {
+                    const achou = (v[i] === alvo);
+                    steps.push({
+                        kind: 'vector',
+                        vec: [...v],
+                        comparing: achou ? [] : [i],
+                        swapping: [],
+                        sorted: achou ? [i] : [],
+                        pointers: { [i]: achou ? 'ACHADO!' : 'i' },
+                        vars: { 'alvo': alvo, 'i (C/Py)': i, 'i (Vis)': i + 1, 'v[i]': v[i], 'pos': achou ? i : -1 },
+                        console: [`Passo i=${i}: v[${i}] (${v[i]}) == ${alvo}? ${achou ? 'SIM!' : 'Não'}`],
+                        lines: { visualg: achou ? 8 : 7, c: achou ? 7 : 6, python: achou ? 7 : 6 },
+                        explanation: achou
+                            ? `Encontramos! O valor ${alvo} está no índice [${i}] (C/Python) / ${i + 1}º (VisuAlg). Interrompemos o laço!`
+                            : `Comparamos v[${i}] (${v[i]}) com ${alvo}. Como são diferentes, avançamos para a próxima posição.`
+                    });
+                    if (achou) {
+                        pos = i;
+                        break;
+                    }
+                }
+
+                steps.push({
+                    kind: 'vector',
+                    vec: [...v],
+                    comparing: [],
+                    swapping: [],
+                    sorted: pos !== -1 ? [pos] : [],
+                    pointers: pos !== -1 ? { [pos]: 'pos' } : {},
+                    vars: { 'alvo': alvo, 'pos (C/Py)': pos, 'pos (Vis)': pos !== -1 ? pos + 1 : -1 },
+                    console: [pos !== -1 ? `Resultado pos = ${pos} (Valor encontrado!)` : `Resultado pos = -1 (Valor não existe no vetor)`],
+                    lines: { visualg: 12, c: 11, python: 9 },
+                    explanation: pos !== -1
+                        ? `Busca concluída! Elemento localizado na posição ${pos} (base 0) / ${pos + 1} (base 1).`
+                        : `Percorremos todo o vetor e o valor ${alvo} não foi encontrado (pos permaneceu -1).`
+                });
+                return steps;
+            }
+
+            // 5. BUSCA BINÁRIA
+            if (act === 'vet_binaria') {
+                const v = [...appState.vector].sort((a, b) => a - b);
+                const alvo = appState.searchTarget;
+                let ini = 0, fim = v.length - 1, pos = -1;
+
+                steps.push({
+                    kind: 'vector',
+                    vec: [...v],
+                    comparing: [],
+                    swapping: [],
+                    sorted: [],
+                    pointers: { [ini]: 'ini', [fim]: 'fim' },
+                    vars: { 'ini': ini, 'fim': fim, 'meio': '-', 'alvo': alvo, 'pos': -1 },
+                    console: [`Vetor ordenado. Buscando alvo = ${alvo}`],
+                    lines: { visualg: 5, c: 4, python: 3 },
+                    explanation: `Na Busca Binária, definimos os limites ini = 0 e fim = ${fim}.`
+                });
+
+                while (ini <= fim) {
+                    const meio = Math.floor((ini + fim) / 2);
+                    const achou = (v[meio] === alvo);
+
+                    steps.push({
+                        kind: 'vector',
+                        vec: [...v],
+                        comparing: achou ? [] : [meio],
+                        swapping: [],
+                        sorted: achou ? [meio] : [],
+                        pointers: { [ini]: 'ini', [fim]: 'fim', [meio]: achou ? 'ACHOU!' : 'meio' },
+                        vars: { 'ini': ini, 'fim': fim, 'meio': meio, 'v[meio]': v[meio], 'alvo': alvo },
+                        console: [`meio = (${ini}+${fim})/2 = ${meio} -> v[${meio}] = ${v[meio]}`],
+                        lines: { visualg: 7, c: 6, python: 5 },
+                        explanation: `Calculamos o índice do meio = ${meio}, cujo valor é ${v[meio]}. Comparamos com o alvo (${alvo}).`
+                    });
+
+                    if (achou) {
+                        pos = meio;
+                        break;
+                    } else if (v[meio] < alvo) {
+                        ini = meio + 1;
+                        steps.push({
+                            kind: 'vector',
+                            vec: [...v],
+                            comparing: [],
+                            swapping: [],
+                            sorted: [],
+                            pointers: { [ini]: 'novo ini', [fim]: 'fim' },
+                            vars: { 'ini': ini, 'fim': fim, 'meio': meio, 'alvo': alvo },
+                            console: [`Como ${v[meio]} < ${alvo}, descartamos a metade esquerda (ini = ${ini})`],
+                            lines: { visualg: 13, c: 10, python: 10 },
+                            explanation: `Como v[meio] (${v[meio]}) é menor que ${alvo}, o alvo só pode estar à direita! Atualizamos ini = ${ini}.`
+                        });
+                    } else {
+                        fim = meio - 1;
+                        steps.push({
+                            kind: 'vector',
+                            vec: [...v],
+                            comparing: [],
+                            swapping: [],
+                            sorted: [],
+                            pointers: { [ini]: 'ini', [Math.max(0, fim)]: 'novo fim' },
+                            vars: { 'ini': ini, 'fim': fim, 'meio': meio, 'alvo': alvo },
+                            console: [`Como ${v[meio]} > ${alvo}, descartamos a metade direita (fim = ${fim})`],
+                            lines: { visualg: 15, c: 12, python: 12 },
+                            explanation: `Como v[meio] (${v[meio]}) é maior que ${alvo}, o alvo só pode estar à esquerda! Atualizamos fim = ${fim}.`
+                        });
+                    }
+                }
+
+                steps.push({
+                    kind: 'vector',
+                    vec: [...v],
+                    comparing: [],
+                    swapping: [],
+                    sorted: pos !== -1 ? [pos] : [],
+                    pointers: pos !== -1 ? { [pos]: 'ENCONTRADO' } : {},
+                    vars: { 'alvo': alvo, 'pos (C/Py)': pos, 'pos (Vis)': pos !== -1 ? pos + 1 : -1 },
+                    console: [pos !== -1 ? `Encontrado no índice ${pos}!` : `Valor ${alvo} não encontrado (pos = -1).`],
+                    lines: { visualg: 19, c: 15, python: 13 },
+                    explanation: pos !== -1
+                        ? `Busca Binária encontrou ${alvo} com pouquíssimas comparações na posição ${pos}!`
+                        : `O intervalo se cruzou (ini > fim) e o elemento ${alvo} não está no vetor.`
+                });
+                return steps;
+            }
+
+            // 6. MAIOR, MENOR E SOMA DO VETOR
+            if (act === 'vet_maior_menor') {
+                const v = [...appState.vector];
+                let maior = v[0], menor = v[0], soma = 0;
+
+                steps.push({
+                    kind: 'vector',
+                    vec: [...v],
+                    comparing: [0],
+                    swapping: [],
+                    sorted: [],
+                    pointers: { 0: 'maior/menor' },
+                    vars: { 'maior': maior, 'menor': menor, 'soma': 0, 'i': '-' },
+                    console: [`Inicializado: maior = ${maior}, menor = ${menor}, soma = 0`],
+                    lines: { visualg: 5, c: 4, python: 3 },
+                    explanation: `Inicializamos maior e menor com o primeiro elemento do vetor (${v[0]}) e soma = 0.`
+                });
+
+                for (let i = 0; i < v.length; i++) {
+                    soma += v[i];
+                    let mudou = false;
+                    if (v[i] > maior) { maior = v[i]; mudou = true; }
+                    if (v[i] < menor) { menor = v[i]; mudou = true; }
+
+                    steps.push({
+                        kind: 'vector',
+                        vec: [...v],
+                        comparing: [i],
+                        swapping: mudou ? [i] : [],
+                        sorted: [],
+                        pointers: { [i]: `i=${i}` },
+                        vars: { 'i (C/Py)': i, 'v[i]': v[i], 'maior': maior, 'menor': menor, 'soma': soma },
+                        console: [`i=${i} (valor ${v[i]}) -> Soma=${soma}, Maior=${maior}, Menor=${menor}`],
+                        lines: { visualg: 7, c: 6, python: 5 },
+                        explanation: `Somamos v[${i}] (${v[i]}) ao acumulador (soma = ${soma}). Maior atual: ${maior} | Menor atual: ${menor}.`
+                    });
+                }
+
+                steps.push({
+                    kind: 'vector',
+                    vec: [...v],
+                    comparing: [],
+                    swapping: [],
+                    sorted: Array.from({ length: v.length }, (_, k) => k),
+                    pointers: {},
+                    vars: { 'Maior Final': maior, 'Menor Final': menor, 'Soma Total': soma },
+                    console: [`Maior=${maior} | Menor=${menor} | Soma=${soma}`],
+                    lines: { visualg: 15, c: 10, python: 8 },
+                    explanation: `Varredura completa! Maior=${maior}, Menor=${menor} e Soma=${soma}.`
+                });
+                return steps;
+            }
+
+            // 7. TRAVESSIA DE MATRIZ M x N
+            if (act === 'mat_travessia') {
+                const M = appState.matrixRows, C = appState.matrixCols;
+                let soma = 0;
+                const visited = [];
+
+                steps.push({
+                    kind: 'matrix',
+                    matrix: appState.matrix,
+                    activeCell: null,
+                    visitedCells: [],
+                    highlightCells: [],
+                    vars: { 'Linhas (M)': M, 'Colunas (N)': C, 'i': '-', 'j': '-', 'soma': 0 },
+                    console: [`Iniciando travessia da matriz ${M}x${C}...`],
+                    lines: { visualg: 5, c: 4, python: 2 },
+                    explanation: `A matriz possui ${M} linhas e ${C} colunas. Vamos percorrê-la com dois laços PARA (i e j).`
+                });
+
+                for (let i = 0; i < M; i++) {
+                    for (let j = 0; j < C; j++) {
+                        const val = appState.matrix[i][j];
+                        soma += val;
+                        visited.push(`${i},${j}`);
+
+                        steps.push({
+                            kind: 'matrix',
+                            matrix: appState.matrix,
+                            activeCell: [i, j],
+                            visitedCells: [...visited],
+                            highlightCells: [],
+                            vars: { 'i (C/Py)': i, 'j (C/Py)': j, 'm[i][j]': val, 'soma': soma, 'VisuAlg': `[${i+1},${j+1}]` },
+                            console: [`Lendo m[${i}][${j}] = ${val} -> soma acumulada = ${soma}`],
+                            lines: { visualg: 8, c: 7, python: 5 },
+                            explanation: `Acessamos a Linha i=${i} (VisuAlg ${i+1}) e Coluna j=${j} (VisuAlg ${j+1}): somamos ${val}, totalizando ${soma}.`
+                        });
+                    }
+                }
+
+                steps.push({
+                    kind: 'matrix',
+                    matrix: appState.matrix,
+                    activeCell: null,
+                    visitedCells: [...visited],
+                    highlightCells: [],
+                    vars: { 'Soma Final': soma, 'Elementos': M * C },
+                    console: [`Soma Total da Matriz = ${soma}`],
+                    lines: { visualg: 11, c: 10, python: 6 },
+                    explanation: `Todos os ${M * C} elementos da matriz foram percorridos! Soma Total = ${soma}.`
+                });
+                return steps;
+            }
+
+            // 8. DIAGONAIS DA MATRIZ QUADRADA
+            if (act === 'mat_diagonais') {
+                const M = appState.matrixRows;
+                let somaP = 0, somaS = 0;
+                const diagCells = [];
+
+                steps.push({
+                    kind: 'matrix',
+                    matrix: appState.matrix,
+                    activeCell: null,
+                    visitedCells: [],
+                    highlightCells: [],
+                    vars: { 'Ordem N': M, 'somaP': 0, 'somaS': 0 },
+                    console: [`Analisando diagonais da matriz quadrada ${M}x${M}...`],
+                    lines: { visualg: 5, c: 3, python: 2 },
+                    explanation: `Diagonal Principal: i == j. Diagonal Secundária: i + j == ${M - 1} (em C/Python) ou i + j == ${M + 1} (no VisuAlg).`
+                });
+
+                for (let i = 0; i < M; i++) {
+                    for (let j = 0; j < M; j++) {
+                        const val = appState.matrix[i][j];
+                        const isMain = (i === j);
+                        const isSec = (i + j === M - 1);
+                        if (isMain) somaP += val;
+                        if (isSec) somaS += val;
+                        if (isMain || isSec) diagCells.push(`${i},${j}`);
+
+                        steps.push({
+                            kind: 'matrix',
+                            matrix: appState.matrix,
+                            activeCell: [i, j],
+                            visitedCells: [],
+                            highlightCells: [...diagCells],
+                            vars: { 'i': i, 'j': j, 'm[i][j]': val, 'Diag. Princ.': somaP, 'Diag. Sec.': somaS },
+                            console: [
+                                isMain && isSec ? `m[${i}][${j}]=${val} pertence a AMBAS as diagonais!`
+                                : isMain ? `m[${i}][${j}]=${val} somado à Diagonal Principal (${somaP})`
+                                : isSec ? `m[${i}][${j}]=${val} somado à Diagonal Secundária (${somaS})`
+                                : `m[${i}][${j}]=${val} fora das diagonais`
+                            ],
+                            lines: { visualg: isMain ? 9 : isSec ? 12 : 7, c: isMain ? 6 : 7, python: isMain ? 5 : 6 },
+                            explanation: isMain
+                                ? `Como i == j (${i} == ${j}), a célula faz parte da Diagonal Principal! Somamos ${val}.`
+                                : isSec
+                                ? `Como i + j == ${M - 1}, a célula faz parte da Diagonal Secundária! Somamos ${val}.`
+                                : `Célula [${i}][${j}] não pertence às diagonais.`
+                        });
+                    }
+                }
+
+                steps.push({
+                    kind: 'matrix',
+                    matrix: appState.matrix,
+                    activeCell: null,
+                    visitedCells: [],
+                    highlightCells: [...diagCells],
+                    vars: { 'Diag. Principal': somaP, 'Diag. Secundária': somaS },
+                    console: [`Concluído! DiagP = ${somaP} | DiagS = ${somaS}`],
+                    lines: { visualg: 16, c: 10, python: 7 },
+                    explanation: `Cálculo finalizado! Soma da Diagonal Principal = ${somaP} e Diagonal Secundária = ${somaS}.`
+                });
+                return steps;
+            }
+
+            // 9. DECISÃO: PAR / ÍMPAR E SINAL
+            if (act === 'dec_par_impar') {
+                const num = appState.decNum;
+                const isPar = (num % 2 === 0);
+                const isPos = (num >= 0);
+
+                steps.push({
+                    kind: 'decision',
+                    cards: [
+                        { title: `1º Teste: num % 2 == 0 (${num} % 2 == ${num % 2})`, status: 'wait', trueText: 'Bloco SE: É PAR', falseText: 'Bloco SENAO: É ÍMPAR' },
+                        { title: `2º Teste: num >= 0 (${num} >= 0)`, status: 'wait', trueText: 'Bloco SE: POSITIVO', falseText: 'Bloco SENAO: NEGATIVO' }
+                    ],
+                    vars: { 'num': num, 'resto (num%2)': num % 2 },
+                    console: [`Lido num = ${num}`],
+                    lines: { visualg: 4, c: 3, python: 2 },
+                    explanation: `Armazenamos num = ${num} na memória e vamos avaliar a primeira estrutura condicional.`
+                });
+
+                steps.push({
+                    kind: 'decision',
+                    cards: [
+                        { title: `1º Teste: num % 2 == 0 (${num} % 2 == ${num % 2})`, status: isPar ? 'true' : 'false', trueText: 'Bloco SE: É PAR', falseText: 'Bloco SENAO: É ÍMPAR' },
+                        { title: `2º Teste: num >= 0 (${num} >= 0)`, status: 'wait', trueText: 'Bloco SE: POSITIVO', falseText: 'Bloco SENAO: NEGATIVO' }
+                    ],
+                    vars: { 'num': num, 'num % 2': num % 2, 'Paridade': isPar ? 'PAR' : 'ÍMPAR' },
+                    console: [`O número ${num} é ${isPar ? 'PAR' : 'ÍMPAR'}`],
+                    lines: { visualg: isPar ? 6 : 8, c: isPar ? 5 : 7, python: isPar ? 4 : 6 },
+                    explanation: `A condição (num % 2 == 0) resultou em ${isPar ? 'VERDADEIRO' : 'FALSO'}. O fluxo executa o ramo ${isPar ? 'SE (IF)' : 'SENAO (ELSE)'}.`
+                });
+
+                steps.push({
+                    kind: 'decision',
+                    cards: [
+                        { title: `1º Teste: num % 2 == 0 (${num} % 2 == ${num % 2})`, status: isPar ? 'true' : 'false', trueText: 'Bloco SE: É PAR', falseText: 'Bloco SENAO: É ÍMPAR' },
+                        { title: `2º Teste: num >= 0 (${num} >= 0)`, status: isPos ? 'true' : 'false', trueText: 'Bloco SE: POSITIVO', falseText: 'Bloco SENAO: NEGATIVO' }
+                    ],
+                    vars: { 'num': num, 'Paridade': isPar ? 'PAR' : 'ÍMPAR', 'Sinal': isPos ? 'POSITIVO' : 'NEGATIVO' },
+                    console: [`O número ${num} é ${isPar ? 'PAR' : 'ÍMPAR'}`, `Classificação: ${isPos ? 'POSITIVO' : 'NEGATIVO'}`],
+                    lines: { visualg: isPos ? 11 : 13, c: isPos ? 10 : 12, python: isPos ? 8 : 10 },
+                    explanation: `Na segunda decisão, (${num} >= 0) é ${isPos ? 'VERDADEIRO' : 'FALSO'}. Classificado como ${isPos ? 'POSITIVO' : 'NEGATIVO'}.`
+                });
+                return steps;
+            }
+
+            // 10. DECISÃO: MÉDIA ESCOLAR
+            if (act === 'dec_media') {
+                const n1 = appState.decNota1, n2 = appState.decNota2;
+                const media = Number(((n1 + n2) / 2).toFixed(2));
+                const c1 = media >= 7.0;
+                const c2 = !c1 && media >= 4.0;
+
+                steps.push({
+                    kind: 'decision',
+                    cards: [
+                        { title: `Condição 1: media >= 7.0 (${media} >= 7.0)`, status: 'wait', trueText: 'APROVADO', falseText: 'Testar SENAO SE...' },
+                        { title: `Condição 2: media >= 4.0 (${media} >= 4.0)`, status: 'wait', trueText: 'EM EXAME', falseText: 'REPROVADO' }
+                    ],
+                    vars: { 'n1': n1, 'n2': n2, 'media': media },
+                    console: [`Média calculada = ${media}`],
+                    lines: { visualg: 5, c: 4, python: 3 },
+                    explanation: `Calculamos media = (${n1} + ${n2}) / 2 = ${media}.`
+                });
+
+                steps.push({
+                    kind: 'decision',
+                    cards: [
+                        { title: `Condição 1: media >= 7.0 (${media} >= 7.0)`, status: c1 ? 'true' : 'false', trueText: 'APROVADO', falseText: 'Falso -> Vai ao SENAO SE' },
+                        { title: `Condição 2: media >= 4.0 (${media} >= 4.0)`, status: c1 ? 'wait' : (c2 ? 'true' : 'false'), trueText: 'EM EXAME', falseText: 'REPROVADO' }
+                    ],
+                    vars: { 'n1': n1, 'n2': n2, 'media': media, 'Situação': c1 ? 'APROVADO' : c2 ? 'EM EXAME' : 'REPROVADO' },
+                    console: [`Média = ${media}`, `Situação: ${c1 ? 'APROVADO' : c2 ? 'EM EXAME' : 'REPROVADO'}`],
+                    lines: { visualg: c1 ? 7 : c2 ? 10 : 12, c: c1 ? 6 : c2 ? 8 : 10, python: c1 ? 5 : c2 ? 7 : 9 },
+                    explanation: c1
+                        ? `Como ${media} >= 7.0 é VERDADEIRO, imprime APROVADO e ignora todo o resto da estrutura!`
+                        : c2
+                        ? `A 1ª condição deu FALSO, mas a 2ª (${media} >= 4.0) deu VERDADEIRO: aluno EM EXAME.`
+                        : `Ambas as condições deram FALSO (${media} < 4.0). Caiu no último SENAO: REPROVADO.`
+                });
+                return steps;
+            }
+
+            // 11. DECISÃO: CALCULADORA ESCOLHA / SWITCH
+            if (act === 'dec_calculadora') {
+                const a = appState.decCalcA, b = appState.decCalcB, op = appState.decCalcOp;
+                let res = 0;
+                if (op === 1) res = a + b;
+                else if (op === 2) res = a - b;
+                else if (op === 3) res = a * b;
+                else if (op === 4) res = b !== 0 ? Number((a / b).toFixed(2)) : 'Erro Div 0';
+
+                steps.push({
+                    kind: 'decision',
+                    cards: [
+                        { title: `Caso 1 (Soma): op == 1`, status: op === 1 ? 'true' : 'false', trueText: `res = ${a} + ${b} = ${a+b}`, falseText: 'Ignorado' },
+                        { title: `Caso 2 (Subtração): op == 2`, status: op === 2 ? 'true' : 'false', trueText: `res = ${a} - ${b} = ${a-b}`, falseText: 'Ignorado' },
+                        { title: `Caso 3 (Multiplicação): op == 3`, status: op === 3 ? 'true' : 'false', trueText: `res = ${a} * ${b} = ${a*b}`, falseText: 'Ignorado' },
+                        { title: `Caso 4 (Divisão): op == 4`, status: op === 4 ? 'true' : 'false', trueText: `res = ${res}`, falseText: 'Ignorado' }
+                    ],
+                    vars: { 'a': a, 'b': b, 'op': op, 'res': res },
+                    console: [op >= 1 && op <= 4 ? `Caso ${op} executado -> Resultado = ${res}` : `OutroCaso: Opção Inválida!`],
+                    lines: {
+                        visualg: op === 1 ? 7 : op === 2 ? 9 : op === 3 ? 11 : op === 4 ? 13 : 15,
+                        c: op === 1 ? 6 : op === 2 ? 7 : op === 3 ? 8 : op === 4 ? 9 : 10,
+                        python: op === 1 ? 5 : op === 2 ? 6 : op === 3 ? 7 : op === 4 ? 8 : 9
+                    },
+                    explanation: op >= 1 && op <= 4
+                        ? `O comando escolha/switch saltou diretamente para o Caso ${op} e calculou res = ${res}.`
+                        : `Como op = ${op} não corresponde aos casos 1 a 4, executou o bloco OutroCaso / default.`
+                });
+                return steps;
+            }
+
+            // 12. REPETIÇÃO: TABUADA (PARA / FOR)
+            if (act === 'rep_tabuada') {
+                const n = appState.repTabuadaN, max = appState.repTabuadaMax;
+                const logs = [];
+                const tape = [];
+
+                steps.push({
+                    kind: 'loop',
+                    iter: 0,
+                    maxIter: max,
+                    tape: [],
+                    vars: { 'n': n, 'i': '-', 'prod': '-' },
+                    console: [`Iniciando tabuada do ${n} (1 até ${max})...`],
+                    lines: { visualg: 4, c: 3, python: 2 },
+                    explanation: `Definimos n = ${n}. O laço PARA vai variar o contador i de 1 até ${max}.`
+                });
+
+                for (let i = 1; i <= max; i++) {
+                    const prod = n * i;
+                    logs.push(`${n} x ${i} = ${prod}`);
+                    tape.push({ label: `i=${i}`, val: prod });
+
+                    steps.push({
+                        kind: 'loop',
+                        iter: i,
+                        maxIter: max,
+                        tape: [...tape],
+                        vars: { 'n': n, 'i': i, 'prod': prod },
+                        console: [...logs],
+                        lines: { visualg: 7, c: 6, python: 5 },
+                        explanation: `Repetição ${i} de ${max}: calculamos prod = ${n} * ${i} = ${prod} e exibimos na saída.`
+                    });
+                }
+                return steps;
+            }
+
+            // 13. REPETIÇÃO: FATORIAL (ENQUANTO / WHILE)
+            if (act === 'rep_fatorial') {
+                const n = appState.repFatorialN;
+                let cont = n, fat = 1;
+                const tape = [{ label: 'Início', val: 1 }];
+                const logs = [`Início: fat = 1, cont = ${n}`];
+
+                steps.push({
+                    kind: 'loop',
+                    iter: 0,
+                    maxIter: n - 1,
+                    tape: [...tape],
+                    vars: { 'n': n, 'cont': cont, 'fat': fat },
+                    console: [...logs],
+                    lines: { visualg: 4, c: 3, python: 3 },
+                    explanation: `Inicializamos o acumulador fat = 1 e o contador cont = ${n}.`
+                });
+
+                let stepCount = 0;
+                while (cont > 1) {
+                    stepCount++;
+                    fat = fat * cont;
+                    tape.push({ label: `* ${cont}`, val: fat });
+                    logs.push(`fat = ${fat} (multiplicou por ${cont})`);
+                    cont--;
+
+                    steps.push({
+                        kind: 'loop',
+                        iter: stepCount,
+                        maxIter: n - 1,
+                        tape: [...tape],
+                        vars: { 'n': n, 'cont': cont, 'fat': fat },
+                        console: [...logs],
+                        lines: { visualg: 6, c: 5, python: 5 },
+                        explanation: `Multiplicamos o acumulador fat e reduzimos cont para ${cont}.`
+                    });
+                }
+
+                logs.push(`Fatorial Final de ${n}! = ${fat}`);
+                steps.push({
+                    kind: 'loop',
+                    iter: n - 1,
+                    maxIter: n - 1,
+                    tape: [...tape],
+                    vars: { 'n': n, 'cont': cont, 'Fatorial': fat },
+                    console: [...logs],
+                    lines: { visualg: 9, c: 8, python: 7 },
+                    explanation: `Quando cont chega a 1, a condição (cont > 1) fica FALSA e o laço ENQUANTO termina! Resultado: ${fat}.`
+                });
+                return steps;
+            }
+
+            // 14. REPETIÇÃO: FIBONACCI
+            if (act === 'rep_fibonacci') {
+                const n = appState.repFibonacciN;
+                let ant = 0, atual = 1;
+                const tape = [];
+                const logs = [];
+
+                for (let i = 1; i <= n; i++) {
+                    tape.push({ label: `${i}º termo`, val: ant });
+                    logs.push(`Termo ${i}: ${ant}`);
+                    const prox = ant + atual;
+                    const oldAnt = ant, oldAtual = atual;
+                    ant = atual;
+                    atual = prox;
+
+                    steps.push({
+                        kind: 'loop',
+                        iter: i,
+                        maxIter: n,
+                        tape: [...tape],
+                        vars: { 'i': i, 'impresso': oldAnt, 'prox': prox, 'novo ant': ant, 'novo atual': atual },
+                        console: [`Série: ${tape.map(t => t.val).join(', ')}`],
+                        lines: { visualg: 7, c: 6, python: 6 },
+                        explanation: `Passo ${i}: exibimos ${oldAnt} e calculamos o próximo termo (${oldAnt} + ${oldAtual} = ${prox}).`
+                    });
+                }
+                return steps;
+            }
+
+            return steps;
+        }
+
+        /***********************************************************************
+         * RENDERIZAÇÃO DO CÓDIGO À ESQUERDA E DEMONSTRAÇÃO VISUAL À DIREITA
+         ***********************************************************************/
+        function renderCodePanels() {
+            ['visualg', 'c', 'python'].forEach(lang => {
+                const box = document.getElementById(`codeLines-${lang}`);
+                const lines = appState.codes[lang] || [];
+                box.innerHTML = lines.map((lineText, idx) => {
+                    const lineNum = idx + 1;
+                    const safe = lineText.replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;');
+                    return `
+                        <div id="line-${lang}-${lineNum}" class="code-line px-2 py-0.5 rounded flex items-start gap-3">
+                            <span class="w-5 text-right text-[11px] text-slate-400 dark:text-slate-600 select-none shrink-0">${lineNum}</span>
+                            <span class="whitespace-pre">${safe}</span>
+                        </div>
+                    `;
+                }).join('');
+            });
+        }
+
+        function renderCurrentStep() {
+            const step = appState.steps[appState.stepIndex];
+            if (!step) return;
+
+            // Atualizar contadores e botões
+            document.getElementById('stepBadgeCounter').textContent = `Passo ${appState.stepIndex + 1} / ${appState.steps.length}`;
+            document.getElementById('stepExplanationBox').textContent = step.explanation;
+            document.getElementById('btnPrevStep').disabled = (appState.stepIndex === 0);
+            document.getElementById('btnNextStep').disabled = (appState.stepIndex >= appState.steps.length - 1);
+
+            // Destacar linha ativa em cada linguagem
+            ['visualg', 'c', 'python'].forEach(lang => {
+                const container = document.getElementById(`codeLines-${lang}`);
+                if (!container) return;
+                container.querySelectorAll('.code-line-active').forEach(el => el.classList.remove('code-line-active'));
+
+                const activeLineNumber = step.lines ? step.lines[lang] : null;
+                if (activeLineNumber) {
+                    const lineEl = document.getElementById(`line-${lang}-${activeLineNumber}`);
+                    if (lineEl) {
+                        lineEl.classList.add('code-line-active');
+                        const parentBox = document.getElementById(`codeBox-${lang}`);
+                        if (parentBox && !parentBox.classList.contains('hidden')) {
+                            lineEl.scrollIntoView({ block: 'nearest', behavior: 'smooth' });
+                        }
+                    }
+                }
+            });
+
+            // Renderizar Demonstração Visual no Palco Direito
+            if (step.kind === 'vector') {
+                renderVectorStage(step);
+            } else if (step.kind === 'matrix') {
+                renderMatrixStage(step);
+            } else if (step.kind === 'decision') {
+                renderDecisionStage(step);
+            } else if (step.kind === 'loop') {
+                renderLoopStage(step);
+            }
+
+            // Renderizar Teste de Mesa (Variáveis)
+            const varGrid = document.getElementById('memoryVariablesGrid');
+            const entries = Object.entries(step.vars || {});
+            varGrid.innerHTML = entries.map(([k, v]) => `
+                <div class="p-2.5 rounded-xl bg-slate-50 dark:bg-slate-800/80 border border-slate-200 dark:border-slate-700/80 flex flex-col justify-between">
+                    <span class="text-[10px] font-mono uppercase text-slate-400 dark:text-slate-400 truncate">${k}</span>
+                    <span class="text-sm font-mono font-extrabold text-indigo-600 dark:text-indigo-400 mt-0.5 truncate">${v}</span>
+                </div>
+            `).join('');
+
+            // Renderizar Terminal / Console
+            const consoleBox = document.getElementById('consoleOutputBox');
+            const logs = step.console || [];
+            consoleBox.innerHTML = logs.map((line, i) => `
+                <div class="${i === logs.length - 1 ? 'text-amber-300 font-bold' : 'text-emerald-400'}">&gt; ${line}</div>
+            `).join('');
+            consoleBox.scrollTop = consoleBox.scrollHeight;
+        }
+
+        // PALCO 1: DEMONSTRAÇÃO VISUAL DE VETORES (1D)
+        function renderVectorStage(step) {
+            const canvas = document.getElementById('visualStageCanvas');
+            const vec = step.vec;
+            const maxVal = Math.max(...vec.map(v => Math.abs(v)), 10);
+
+            const boxesHtml = vec.map((val, idx) => {
+                const isComp = (step.comparing || []).includes(idx);
+                const isSwap = (step.swapping || []).includes(idx);
+                const isSort = (step.sorted || []).includes(idx);
+                const ptr = step.pointers ? step.pointers[idx] : null;
+
+                let boxStyle = 'bg-white dark:bg-slate-900 border-slate-300 dark:border-slate-700 text-slate-800 dark:text-slate-100';
+                let barColor = 'bg-indigo-500/80 dark:bg-indigo-500/70';
+
+                if (isSwap) {
+                    boxStyle = 'bg-rose-500 text-white border-rose-600 scale-110 shadow-lg shadow-rose-500/30 ring-2 ring-rose-400';
+                    barColor = 'bg-rose-500';
+                } else if (isComp) {
+                    boxStyle = 'bg-amber-400 text-slate-950 border-amber-500 scale-105 shadow-md shadow-amber-500/30 font-extrabold';
+                    barColor = 'bg-amber-400';
+                } else if (isSort) {
+                    boxStyle = 'bg-emerald-500 text-white border-emerald-600 shadow-sm';
+                    barColor = 'bg-emerald-500';
+                }
+
+                const heightPx = Math.max(22, Math.round((Math.abs(val) / maxVal) * 85));
+
+                return `
+                    <div class="flex flex-col items-center gap-1.5 cell-anim min-w-[54px] sm:min-w-[62px]">
+                        <!-- Ponteiro (i, j, meio, etc.) -->
+                        <div class="h-6 flex items-center justify-center">
+                            ${ptr ? `<span class="px-2 py-0.5 rounded-full text-[10px] font-mono font-bold bg-indigo-600 text-white shadow">${ptr} ↓</span>` : ''}
+                        </div>
+
+                        <!-- Barra Proporcional -->
+                        <div class="h-24 flex items-end justify-center w-full px-2">
+                            <div class="w-full max-w-[34px] rounded-t-lg cell-anim ${barColor}" style="height: ${heightPx}px"></div>
+                        </div>
+
+                        <!-- Caixa de Memória do Vetor -->
+                        <div class="w-13 sm:w-15 h-13 sm:h-14 px-3 py-2 rounded-xl border-2 font-mono text-base sm:text-lg font-extrabold flex items-center justify-center cell-anim ${boxStyle}">
+                            ${val}
+                        </div>
+
+                        <!-- Dupla Indexação Didática: C/Python [0] vs VisuAlg [1] -->
+                        <div class="flex flex-col items-center text-[10px] font-mono leading-tight mt-0.5">
+                            <span class="px-1.5 py-0.5 rounded bg-sky-500/10 text-sky-700 dark:text-sky-300 font-bold" title="Índice em C e Python">C/Py [${idx}]</span>
+                            <span class="text-amber-600 dark:text-amber-400 font-semibold mt-0.5" title="Posição no VisuAlg">Vis [${idx + 1}]</span>
+                        </div>
+                    </div>
+                `;
+            }).join('');
+
+            canvas.innerHTML = `
+                <div class="w-full flex flex-col items-center">
+                    <div class="flex items-end justify-center gap-2 sm:gap-3 py-2 px-2 flex-wrap sm:flex-nowrap">
+                        ${boxesHtml}
+                    </div>
+                </div>
+            `;
+        }
+
+        // PALCO 2: DEMONSTRAÇÃO VISUAL DE MATRIZES (2D)
+        function renderMatrixStage(step) {
+            const canvas = document.getElementById('visualStageCanvas');
+            const mat = step.matrix;
+            const M = mat.length;
+            const C = mat[0].length;
+
+            let colHeaders = `<th class="p-2 text-[11px] font-mono text-slate-400">i \\ j</th>`;
+            for (let j = 0; j < C; j++) {
+                colHeaders += `
+                    <th class="p-2 text-center font-mono">
+                        <div class="text-xs font-bold text-sky-600 dark:text-sky-400">Col [${j}]</div>
+                        <div class="text-[10px] text-amber-600 dark:text-amber-400">Vis ${j + 1}</div>
+                    </th>
+                `;
+            }
+
+            let rowsHtml = '';
+            for (let i = 0; i < M; i++) {
+                let cellsHtml = `
+                    <td class="p-2 text-right font-mono pr-3">
+                        <div class="text-xs font-bold text-sky-600 dark:text-sky-400">Lin [${i}]</div>
+                        <div class="text-[10px] text-amber-600 dark:text-amber-400">Vis ${i + 1}</div>
+                    </td>
+                `;
+
+                for (let j = 0; j < C; j++) {
+                    const val = mat[i][j];
+                    const isAct = step.activeCell && step.activeCell[0] === i && step.activeCell[1] === j;
+                    const isVis = (step.visitedCells || []).includes(`${i},${j}`);
+                    const isHigh = (step.highlightCells || []).includes(`${i},${j}`);
+
+                    let cellStyle = 'bg-white dark:bg-slate-900 border-slate-300 dark:border-slate-700 text-slate-800 dark:text-slate-200';
+                    if (isAct) {
+                        cellStyle = 'bg-amber-400 text-slate-950 border-amber-500 scale-110 font-extrabold shadow-lg ring-2 ring-amber-400 z-10';
+                    } else if (isHigh) {
+                        cellStyle = 'bg-emerald-500 text-white border-emerald-600 font-bold shadow-sm';
+                    } else if (isVis) {
+                        cellStyle = 'bg-indigo-500/20 dark:bg-indigo-500/30 border-indigo-500/50 text-indigo-900 dark:text-indigo-200 font-bold';
+                    }
+
+                    cellsHtml += `
+                        <td class="p-1.5">
+                            <div class="w-16 h-14 sm:w-20 sm:h-16 rounded-xl border-2 flex flex-col items-center justify-center font-mono cell-anim ${cellStyle}">
+                                <span class="text-sm sm:text-base font-extrabold">${val}</span>
+                                <span class="text-[9px] opacity-75">[${i}][${j}]</span>
+                            </div>
+                        </td>
+                    `;
+                }
+                rowsHtml += `<tr>${cellsHtml}</tr>`;
+            }
+
+            canvas.innerHTML = `
+                <div class="overflow-x-auto py-1">
+                    <table class="border-collapse mx-auto">
+                        <thead><tr>${colHeaders}</tr></thead>
+                        <tbody>${rowsHtml}</tbody>
+                    </table>
+                </div>
+            `;
+        }
+
+        // PALCO 3: DEMONSTRAÇÃO DE ESTRUTURAS DE DECISÃO
+        function renderDecisionStage(step) {
+            const canvas = document.getElementById('visualStageCanvas');
+            const cardsHtml = (step.cards || []).map(c => {
+                let badge = `<span class="px-2 py-0.5 rounded text-[10px] font-mono bg-slate-200 dark:bg-slate-800 text-slate-500">Aguardando</span>`;
+                let boxBorder = `border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-900`;
+
+                if (c.status === 'true') {
+                    badge = `<span class="px-2.5 py-0.5 rounded-full text-[10px] font-mono font-bold bg-emerald-500 text-white">VERDADEIRO (True)</span>`;
+                    boxBorder = `border-emerald-500 bg-emerald-500/10 ring-1 ring-emerald-500/40`;
+                } else if (c.status === 'false') {
+                    badge = `<span class="px-2.5 py-0.5 rounded-full text-[10px] font-mono font-bold bg-rose-500 text-white">FALSO (False)</span>`;
+                    boxBorder = `border-rose-500 bg-rose-500/10`;
+                }
+
+                return `
+                    <div class="w-full p-3 rounded-xl border-2 ${boxBorder} cell-anim flex flex-col gap-2">
+                        <div class="flex items-center justify-between gap-2">
+                            <span class="text-xs font-mono font-bold">◆ ${c.title}</span>
+                            ${badge}
+                        </div>
+                        <div class="grid grid-cols-2 gap-2 text-xs font-mono">
+                            <div class="p-2 rounded-lg border ${c.status === 'true' ? 'bg-emerald-500 text-white border-emerald-600 font-bold' : 'bg-slate-100 dark:bg-slate-800/60 border-slate-200 dark:border-slate-700 opacity-60'}">
+                                ✔ Ramo Verdadeiro: ${c.trueText}
+                            </div>
+                            <div class="p-2 rounded-lg border ${c.status === 'false' ? 'bg-rose-500 text-white border-rose-600 font-bold' : 'bg-slate-100 dark:bg-slate-800/60 border-slate-200 dark:border-slate-700 opacity-60'}">
+                                ✖ Ramo Falso: ${c.falseText}
+                            </div>
+                        </div>
+                    </div>
+                `;
+            }).join('');
+
+            canvas.innerHTML = `<div class="w-full max-w-xl space-y-2.5">${cardsHtml}</div>`;
+        }
+
+        // PALCO 4: DEMONSTRAÇÃO DE ESTRUTURAS DE REPETIÇÃO
+        function renderLoopStage(step) {
+            const canvas = document.getElementById('visualStageCanvas');
+            const pct = step.maxIter > 0 ? Math.min(100, Math.round((step.iter / step.maxIter) * 100)) : 100;
+
+            const tapeHtml = (step.tape || []).map((item, idx) => {
+                const isLast = idx === step.tape.length - 1;
+                return `
+                    <div class="px-3 py-2 rounded-xl border-2 font-mono text-center cell-anim min-w-[70px] ${isLast ? 'bg-amber-400 text-slate-950 border-amber-500 font-extrabold scale-105 shadow-md' : 'bg-white dark:bg-slate-900 border-slate-300 dark:border-slate-700'}">
+                        <div class="text-[10px] opacity-75">${item.label}</div>
+                        <div class="text-sm font-bold mt-0.5">${item.val}</div>
+                    </div>
+                `;
+            }).join('');
+
+            canvas.innerHTML = `
+                <div class="w-full max-w-xl space-y-4">
+                    <div class="p-3 rounded-xl bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800">
+                        <div class="flex items-center justify-between text-xs font-mono font-bold mb-1.5">
+                            <span>Progresso do Laço de Repetição: Iteração ${step.iter} de ${step.maxIter}</span>
+                            <span class="text-indigo-600 dark:text-indigo-400">${pct}%</span>
+                        </div>
+                        <div class="w-full h-2.5 rounded-full bg-slate-200 dark:bg-slate-800 overflow-hidden">
+                            <div class="h-full bg-indigo-600 transition-all duration-300" style="width: ${pct}%"></div>
+                        </div>
+                    </div>
+
+                    <div>
+                        <div class="text-[11px] font-mono uppercase text-slate-400 mb-2 text-center">Fita de Iterações Geradas Passo a Passo:</div>
+                        <div class="flex flex-wrap items-center justify-center gap-2">
+                            ${tapeHtml || '<span class="text-xs text-slate-400 font-mono">Pressione Enter ou ↓ para iniciar as repetições...</span>'}
+                        </div>
+                    </div>
+                </div>
+            `;
+        }
+
+        /***********************************************************************
+         * CONTROLES DE NAVEGAÇÃO PASSO A PASSO
+         ***********************************************************************/
+        function nextStep() {
+            if (appState.stepIndex < appState.steps.length - 1) {
+                appState.stepIndex++;
+                renderCurrentStep();
+            } else {
+                stopAutoPlay();
+            }
+        }
+
+        function prevStep() {
+            if (appState.stepIndex > 0) {
+                appState.stepIndex--;
+                renderCurrentStep();
+            }
+        }
+
+        function firstStep() {
+            stopAutoPlay();
+            appState.stepIndex = 0;
+            renderCurrentStep();
+        }
+
+        function toggleAutoPlay() {
+            if (appState.autoPlayTimer) {
+                stopAutoPlay();
+            } else {
+                if (appState.stepIndex >= appState.steps.length - 1) {
+                    appState.stepIndex = 0;
+                }
+                document.getElementById('autoPlayLabel').textContent = '⏸ Pausar';
+                appState.autoPlayTimer = setInterval(() => {
+                    if (appState.stepIndex < appState.steps.length - 1) {
+                        appState.stepIndex++;
+                        renderCurrentStep();
+                    } else {
+                        stopAutoPlay();
+                    }
+                }, 750);
+            }
+        }
+
+        function stopAutoPlay() {
+            if (appState.autoPlayTimer) {
+                clearInterval(appState.autoPlayTimer);
+                appState.autoPlayTimer = null;
+            }
+            const lbl = document.getElementById('autoPlayLabel');
+            if (lbl) lbl.textContent = '▶ Auto';
+        }
+    </script>
+</body>
+</html>
