@@ -1,14 +1,10 @@
-# {;} AlgoLab ADS — Laboratório Interativo de Algoritmos e Estruturas de Dados
+# {;} AlgoLab ADS — Simulador Interativo de Algoritmos e Estruturas de Dados
 
 > **Simulador didático passo a passo em VisuAlg (Portugol), Linguagem C e Python para estudantes do 1º ano de Análise e Desenvolvimento de Sistemas (ADS).**
 
 ---
 
 ## 🎯 Objetivo Pedagógico
-
-No primeiro ano de cursos de Computação e Análise e Desenvolvimento de Sistemas, uma das maiores dificuldades dos estudantes é fazer a transição entre a **lógica em pseudocódigo (Portugol/VisuAlg)** e as **linguagens de programação reais (como C e Python)**, além de visualizar de forma concreta o que acontece na memória do computador durante a execução de um algoritmo.
-
-O **AlgoLab ADS** foi desenvolvido para solucionar esse desafio por meio de uma interface visual interativa de tela dividida (*Split-Screen*), permitindo ao estudante:
 
 1. **Compreender o Teste de Mesa (Rastreamento de Memória):** Acompanhar como os valores das variáveis (`i`, `j`, `aux`, `meio`, `soma`, etc.) mudam a cada linha executada.
 2. **Transitar entre VisuAlg, C e Python:** Visualizar o mesmo algoritmo nas três linguagens — individualmente ou **as 3 lado a lado** — com destaque sincronizado da linha exata em execução.
@@ -83,26 +79,8 @@ O aluno pode controlar a velocidade do próprio aprendizado avançando ou retroc
   * **Teste de Mesa (RAM Atual):** Mostra os cartões de memória com o valor exato de cada variável naquele passo.
   * **Terminal / Saída:** Simula a tela preta do console exibindo o resultado dos comandos `escreval()`, `printf()` e `print()`.
 
----
 
-## 🚀 Como Executar ou Publicar no Moodle / GitHub Pages
 
-O projeto foi construído em **arquitetura Single-File (`index.html`)**, sem necessidade de instalar servidores, compiladores ou bancos de dados.
-
-### Execução Local
-1. Baixe o arquivo `index.html`.
-2. Dê um duplo clique para abri-lo em qualquer navegador moderno (Chrome, Edge, Firefox, Safari).
-
-### Publicação no GitHub Pages
-1. Crie um repositório público no GitHub e envie o arquivo `index.html`.
-2. Acesse **Settings** $\rightarrow$ **Pages** e selecione a branch `main`.
-3. Compartilhe o link gerado com seus alunos.
-
-### Disponibilização no Moodle
-* **Via Link Externo:** Adicione um recurso do tipo **URL** apontando para o endereço do GitHub Pages e configure a exibição para **"Em uma janela pop-up"** ou **"Nova aba"**.
-* **Via Arquivo Direto:** Adicione um recurso do tipo **Arquivo**, envie o `index.html` e, na seção *Aparência*, selecione exibir **"Em uma janela pop-up"** para garantir tela cheia e funcionamento dos atalhos de teclado.
-
----
 
 ## 🛠️ Tecnologias Utilizadas
 
